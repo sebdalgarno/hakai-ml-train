@@ -1,4 +1,4 @@
-# Seagrass ML train
+# Seagrass ML Train
 This fork modifies hakai-ml-train for training a seagrass segmentation model from high resolution drone imagery. 
 
 # Hakai ML Train
