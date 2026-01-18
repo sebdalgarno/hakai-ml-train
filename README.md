@@ -1,3 +1,6 @@
+# Seagrass ML train
+This fork modifies hakai-ml-train for training a seagrass segmentation model from high resolution drone imagery. 
+
 # Hakai ML Train
 
 Deep learning models and training configuration for semantic segmentation in marine ecology applications, specifically kelp and mussel detection from aerial/drone imagery. This is the training component of the [Kelp-o-Matic](https://github.com/HakaiInstitute/kelp-o-matic) ecosystem.
