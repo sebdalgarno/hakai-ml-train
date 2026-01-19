@@ -161,6 +161,7 @@ fabric.properties
 
 data
 checkpoints
+outputs/
 
 !/src/kelp-pa-aco/training/checkpoints/
 
