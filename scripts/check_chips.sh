@@ -2,35 +2,22 @@
 # Chip dataset inspection utilities
 set -e
 
-# =============================================================================
-# CONFIGURE THESE PATHS
-# =============================================================================
+# DIRECTORIES -----
 CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
 OUTPUT_DIR="outputs"
 
-# Class names (space-separated, in order)
+# PARAMETERS -----
 CLASS_NAMES="bg seagrass"
-
-# Number of samples per split for visualization
 N_SAMPLES=16
 
-# =============================================================================
-# CREATE OUTPUT DIRECTORY
-# =============================================================================
+# RUN CHECKS -----
 mkdir -p "$OUTPUT_DIR"
 
-# =============================================================================
-# CHECK CHIP COUNTS AND CLASS BALANCE
-# =============================================================================
 python -m src.prepare.check_class_balance "$CHIP_DIR" --all-splits --class-names $CLASS_NAMES
 
-# =============================================================================
-# GENERATE SAMPLE VISUALIZATIONS
-# =============================================================================
+# Generate sample visualizations
 echo ""
-echo "============================================================"
-echo "  GENERATING SAMPLE VISUALIZATIONS"
-echo "============================================================"
+echo "Generating sample visualizations..."
 for split in train val test; do
     if [ -d "$CHIP_DIR/$split" ]; then
         python -m src.prepare.check_class_balance "$CHIP_DIR/$split" \
@@ -40,15 +27,7 @@ for split in train val test; do
     fi
 done
 
-# =============================================================================
-# DISK USAGE
-# =============================================================================
+# Disk usage
 echo ""
-echo "============================================================"
-echo "  DISK USAGE"
-echo "============================================================"
+echo "Disk usage:"
 du -sh "$CHIP_DIR"/* 2>/dev/null || echo "Could not calculate disk usage"
-
-# =============================================================================
-# ADD MORE CHECKS BELOW
-# =============================================================================
