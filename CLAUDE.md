@@ -225,6 +225,42 @@ Available in `src/losses.py`:
 - Contact Taylor Denouden for W&B access
 - Checkpoints uploaded as artifacts when `log_model: true`
 
+## Coding Conventions
+
+### Workflow Pattern
+- **Python modules** (`src/`): Core logic as importable functions with CLI via `argparse`
+- **Bash scripts** (`scripts/`): User-facing pipelines that call Python modules with configured parameters
+- Scripts should have configurable variables at the top, then call Python modules below
+
+### Bash Script Style
+Use minimal, clean comments with section dividers:
+```bash
+#!/bin/bash
+set -e
+
+# SECTION NAME -----
+VARIABLE="value"
+
+# Another section -----
+python -m src.module.name "$VARIABLE"
+```
+- Section headers: `# SECTION NAME -----` (use 5 dashes)
+- Inline comments only when logic is non-obvious
+- No heavy ASCII boxes or excessive decoration
+- Group related variables together under a section header
+
+### Python Style
+- Follow existing ruff config (isort, flake8-bugbear, flake8-simplify)
+- Minimal docstrings - one-liner at top of module/function when helpful
+- Type hints for function signatures
+- Use `tqdm` for progress bars in CLI tools
+- Prefer `pathlib.Path` over string paths
+
+### Comments
+- Prefer self-documenting code over comments
+- Comment the "why" not the "what"
+- No emoji in code or comments
+
 ## Technical Stack
 
 - **PyTorch Lightning**: Training orchestration
