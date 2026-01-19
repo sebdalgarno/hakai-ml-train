@@ -9,8 +9,8 @@ CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
 
 
 # CHIP PARAMETERS -----
-CHIP_SIZE=224
-CHIP_STRIDE=224
+CHIP_SIZE=512
+CHIP_STRIDE=256
 NUM_BANDS=3
 DTYPE="uint8"
 
