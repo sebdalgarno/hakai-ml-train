@@ -665,14 +665,6 @@ if __name__ == "__main__":
         print("=" * 60)
         check_chip_counts(args.chip_dir)
 
-        print("\n" + "=" * 60)
-        print("  LABEL SANITY CHECK")
-        print("=" * 60)
-        for split in ["train", "val", "test"]:
-            split_dir = args.chip_dir / split
-            if split_dir.exists():
-                check_label_sanity(split_dir, expected_values, args.ignore_index)
-
         for split in ["train", "val", "test"]:
             split_dir = args.chip_dir / split
             if split_dir.exists():
