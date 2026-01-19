@@ -19,6 +19,7 @@ dependencies = [
     "torchvision>=0.22.1",
     "tqdm>=4.67.1",
     "wandb>=0.21.0",
+    "matplotlib>=3.9.0",
 ]
 
 [dependency-groups]
