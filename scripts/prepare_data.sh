@@ -3,15 +3,12 @@
 # Creates chips from GeoTIFF mosaics for training
 set -e  # Exit on error
 
-# =============================================================================
-# CONFIGURE THESE PATHS
-# =============================================================================
+# DIRECTORIES -----
 RAW_DIR="/mnt/class_data/sdalgarno/prototype/raw_data"
 CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
 
-# =============================================================================
-# CHIP PARAMETERS
-# =============================================================================
+
+# CHIP PARAMETERS -----
 CHIP_SIZE=224
 CHIP_STRIDE=224
 NUM_BANDS=3
@@ -21,16 +18,14 @@ DTYPE="uint8"
 # Example: 0 -100 1 means: 0->0 (bg), 1->-100 (ignore), 2->1 (class 1)
 REMAP="0 -100 1"
 
-# =============================================================================
-# RUN PIPELINE
-# =============================================================================
+# RUN PIPELINE -----
 echo "Creating chips from: $RAW_DIR"
 echo "Output directory: $CHIP_DIR"
 echo "Chip size: ${CHIP_SIZE}x${CHIP_SIZE}, stride: $CHIP_STRIDE"
 echo "Label remapping: $REMAP"
 echo ""
 
-# Step 1: Create chips from mosaics
+# Create chips from mosaics
 python -m src.prepare.make_chip_dataset "$RAW_DIR" "$CHIP_DIR" \
     --size "$CHIP_SIZE" \
     --stride "$CHIP_STRIDE" \
@@ -38,14 +33,14 @@ python -m src.prepare.make_chip_dataset "$RAW_DIR" "$CHIP_DIR" \
     --dtype "$DTYPE" \
     --remap $REMAP
 
-# Step 2: Remove background-only tiles
-echo ""
-echo "Removing background-only tiles..."
-python -m src.prepare.remove_bg_only_tiles "$CHIP_DIR/train"
-python -m src.prepare.remove_bg_only_tiles "$CHIP_DIR/val"
-python -m src.prepare.remove_bg_only_tiles "$CHIP_DIR/test"
+# Remove background-only tiles
+# echo ""
+# echo "Removing background-only tiles..."
+# python -m src.prepare.remove_bg_only_tiles "$CHIP_DIR/train"
+# python -m src.prepare.remove_bg_only_tiles "$CHIP_DIR/val"
+# python -m src.prepare.remove_bg_only_tiles "$CHIP_DIR/test"
 
-# Step 3: Remove tiles with nodata areas
+# Remove tiles with nodata areas
 echo ""
 echo "Removing tiles with nodata areas..."
 python -m src.prepare.remove_tiles_with_nodata_areas "$CHIP_DIR/train" --num_channels "$NUM_BANDS"

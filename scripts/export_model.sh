@@ -2,9 +2,7 @@
 # Export trained model to ONNX format
 set -e
 
-# =============================================================================
-# CONFIGURE THESE PATHS
-# =============================================================================
+# PATHS -----
 # Path to the training config used
 CONFIG_PATH="configs/kelp-rgb/segformer_b3.yaml"
 
@@ -17,9 +15,7 @@ OUTPUT_PATH="/mnt/class_data/sdalgarno/prototype/models/model.onnx"
 # ONNX opset version (14 for newer models, 11 for broader compatibility)
 OPSET=14
 
-# =============================================================================
-# EXPORT
-# =============================================================================
+# EXPORT -----
 echo "Exporting model to ONNX..."
 echo "Config: $CONFIG_PATH"
 echo "Checkpoint: $CKPT_PATH"

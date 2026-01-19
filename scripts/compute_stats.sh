@@ -3,17 +3,13 @@
 # Run this after prepare_data.sh
 set -e
 
-# =============================================================================
-# CONFIGURE THESE PATHS
-# =============================================================================
+# PATHS -----
 CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
 
 # Max pixel value (255 for uint8, 65535 for uint16)
 MAX_PIXEL_VAL=255.0
 
-# =============================================================================
-# COMPUTE STATS
-# =============================================================================
+# COMPUTE STATS -----
 echo "Computing channel statistics from: $CHIP_DIR/train"
 echo "Max pixel value: $MAX_PIXEL_VAL"
 echo ""
