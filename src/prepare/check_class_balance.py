@@ -78,7 +78,7 @@ def visualize_samples(
 
     # Create color map for labels
     n_classes = max(class_names.keys()) + 1
-    cmap = plt.cm.get_cmap("tab10", n_classes + 1)
+    cmap = plt.colormaps.get_cmap("tab10").resampled(n_classes + 1)
 
     # 4 samples per page, 2 columns (image + label)
     samples_per_page = 4

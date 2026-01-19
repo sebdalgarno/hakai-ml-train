@@ -1,5 +1,5 @@
 #!/bin/bash
-# Chip dataset inspection utilities
+# Generate sample visualization PDFs
 set -e
 
 # DIRECTORIES -----
@@ -8,18 +8,14 @@ OUTPUT_DIR="outputs"
 
 # PARAMETERS -----
 CLASS_NAMES="bg seagrass"
-N_SAMPLES=16
+N_SAMPLES=48
 
-# RUN CHECKS -----
+# RUN -----
 mkdir -p "$OUTPUT_DIR"
 
-python -m src.prepare.check_class_balance "$CHIP_DIR" --all-splits --class-names $CLASS_NAMES
-
-# Generate sample visualizations
-echo ""
-echo "Generating sample visualizations..."
 for split in train val test; do
     if [ -d "$CHIP_DIR/$split" ]; then
+        echo "Generating $split samples..."
         python -m src.prepare.check_class_balance "$CHIP_DIR/$split" \
             --visualize "$OUTPUT_DIR/samples_${split}.pdf" \
             --class-names $CLASS_NAMES \
@@ -27,7 +23,5 @@ for split in train val test; do
     fi
 done
 
-# Disk usage
 echo ""
-echo "Disk usage:"
-du -sh "$CHIP_DIR"/* 2>/dev/null || echo "Could not calculate disk usage"
+echo "PDFs saved to: $OUTPUT_DIR/"
