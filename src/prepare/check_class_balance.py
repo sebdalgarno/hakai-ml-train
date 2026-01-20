@@ -298,27 +298,33 @@ def generate_stats_pdf(
                         continue
                     name = class_names.get(k, f"class_{k}")
                     pct = stats["counts"][k] / stats["total_pixels"] * 100
+                    chip_count = stats["chips_with_class"].get(k, 0)
+                    chip_pct = chip_count / stats["total_chips"] * 100
                     balance_data.append([
                         split,
                         name,
                         f"{stats['counts'][k]:,}",
                         f"{pct:.1f}%",
+                        f"{chip_count:,}",
+                        f"{chip_pct:.1f}%",
                     ])
                 balance_data.append([
                     split,
                     "Imbalance ratio",
                     f"{stats['imbalance_ratio']:.1f}:1",
                     "",
+                    "",
+                    "",
                 ])
-                balance_data.append(["", "", "", ""])
+                balance_data.append(["", "", "", "", "", ""])
 
         if balance_data:
             table2 = ax_balance.table(
                 cellText=balance_data,
-                colLabels=["Split", "Class", "Pixels", "%"],
+                colLabels=["Split", "Class", "Pixels", "%", "Chips", "% Chips"],
                 loc="upper left",
                 cellLoc="left",
-                colWidths=[0.2, 0.25, 0.25, 0.15],
+                colWidths=[0.15, 0.18, 0.18, 0.12, 0.15, 0.12],
             )
             table2.auto_set_font_size(False)
             table2.set_fontsize(9)
@@ -393,27 +399,33 @@ def generate_report(
                             continue
                         name = class_names.get(k, f"class_{k}")
                         pct = stats["counts"][k] / stats["total_pixels"] * 100
+                        chip_count = stats["chips_with_class"].get(k, 0)
+                        chip_pct = chip_count / stats["total_chips"] * 100
                         balance_data.append([
                             split,
                             name,
                             f"{stats['counts'][k]:,}",
                             f"{pct:.1f}%",
+                            f"{chip_count:,}",
+                            f"{chip_pct:.1f}%",
                         ])
                     balance_data.append([
                         split,
                         "Imbalance ratio",
                         f"{stats['imbalance_ratio']:.1f}:1",
                         "",
+                        "",
+                        "",
                     ])
-                    balance_data.append(["", "", "", ""])
+                    balance_data.append(["", "", "", "", "", ""])
 
         if balance_data:
             table2 = ax_balance.table(
                 cellText=balance_data,
-                colLabels=["Split", "Class", "Pixels", "%"],
+                colLabels=["Split", "Class", "Pixels", "%", "Chips", "% Chips"],
                 loc="upper left",
                 cellLoc="left",
-                colWidths=[0.2, 0.25, 0.25, 0.15],
+                colWidths=[0.15, 0.18, 0.18, 0.12, 0.15, 0.12],
             )
             table2.auto_set_font_size(False)
             table2.set_fontsize(9)
