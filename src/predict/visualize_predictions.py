@@ -83,9 +83,8 @@ def generate_prediction_pdf(
     seed: int = 42,
     device: str = "cuda",
     threshold: float = 0.5,
-    show_probs: bool = False,
 ) -> None:
-    """Generate PDF with image | label | prediction columns."""
+    """Generate PDF with image | label | probability | prediction columns."""
     if class_names is None:
         class_names = ["bg", "class_1"]
 
@@ -108,24 +107,18 @@ def generate_prediction_pdf(
     cmap = plt.colormaps.get_cmap("tab10").resampled(n_classes + 1)
 
     samples_per_page = 4
-    n_cols = 4 if show_probs else 3
     n_pages = (len(samples) + samples_per_page - 1) // samples_per_page
 
     print(f"Generating predictions for {len(samples)} chips (threshold={threshold})...")
 
     with PdfPages(output_path) as pdf:
         for page in tqdm(range(n_pages), desc="Generating pages"):
-            fig, axes = plt.subplots(samples_per_page, n_cols, figsize=(4 * n_cols, 12))
+            fig, axes = plt.subplots(samples_per_page, 4, figsize=(16, 12))
             start_idx = page * samples_per_page
 
             for i in range(samples_per_page):
                 sample_idx = start_idx + i
-
-                if show_probs:
-                    ax_img, ax_label, ax_prob, ax_pred = axes[i]
-                else:
-                    ax_img, ax_label, ax_pred = axes[i]
-                    ax_prob = None
+                ax_img, ax_label, ax_prob, ax_pred = axes[i]
 
                 if sample_idx < len(samples):
                     f = samples[sample_idx]
@@ -133,20 +126,15 @@ def generate_prediction_pdf(
                     image = data["image"]
                     label = data["label"]
 
-                    if show_probs:
-                        pred, probs = predict_chip(
-                            model,
-                            image,
-                            transforms,
-                            device,
-                            num_classes,
-                            threshold,
-                            return_probs=True,
-                        )
-                    else:
-                        pred = predict_chip(
-                            model, image, transforms, device, num_classes, threshold
-                        )
+                    pred, probs = predict_chip(
+                        model,
+                        image,
+                        transforms,
+                        device,
+                        num_classes,
+                        threshold,
+                        return_probs=True,
+                    )
 
                     ax_img.imshow(image)
                     ax_img.set_title(f.name, fontsize=8)
@@ -165,11 +153,10 @@ def generate_prediction_pdf(
                     ax_label.set_title("Ground Truth", fontsize=8)
                     ax_label.axis("off")
 
-                    if show_probs and ax_prob is not None:
-                        im = ax_prob.imshow(probs, cmap="RdYlGn", vmin=0, vmax=1)
-                        ax_prob.set_title(f"P({class_names[1]})", fontsize=8)
-                        ax_prob.axis("off")
-                        plt.colorbar(im, ax=ax_prob, fraction=0.046, pad=0.04)
+                    im = ax_prob.imshow(probs, cmap="RdYlGn", vmin=0, vmax=1)
+                    ax_prob.set_title(f"P({class_names[1]})", fontsize=8)
+                    ax_prob.axis("off")
+                    plt.colorbar(im, ax=ax_prob, fraction=0.046, pad=0.04)
 
                     ax_pred.imshow(
                         pred,
@@ -183,9 +170,8 @@ def generate_prediction_pdf(
                 else:
                     ax_img.axis("off")
                     ax_label.axis("off")
+                    ax_prob.axis("off")
                     ax_pred.axis("off")
-                    if ax_prob is not None:
-                        ax_prob.axis("off")
 
             if page == 0:
                 legend_elements = [
@@ -290,11 +276,6 @@ if __name__ == "__main__":
         default=0.5,
         help="Classification threshold for positive class (default: 0.5)",
     )
-    parser.add_argument(
-        "--show-probs",
-        action="store_true",
-        help="Show probability heatmap column",
-    )
 
     args = parser.parse_args()
 
@@ -309,5 +290,4 @@ if __name__ == "__main__":
         seed=args.seed,
         device=args.device,
         threshold=args.threshold,
-        show_probs=args.show_probs,
     )
