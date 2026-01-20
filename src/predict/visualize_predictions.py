@@ -43,7 +43,13 @@ def get_test_transforms(config: dict):
 
 
 def predict_chip(
-    model, image: np.ndarray, transforms, device: str = "cuda", num_classes: int = 2
+    model,
+    image: np.ndarray,
+    transforms,
+    device: str = "cuda",
+    num_classes: int = 2,
+    threshold: float = 0.5,
+    return_probs: bool = False,
 ):
     """Run prediction on single chip."""
     augmented = transforms(image=image)
@@ -53,12 +59,16 @@ def predict_chip(
         logits = model(input_tensor)
 
     if num_classes == 1:
-        probs = torch.sigmoid(logits)
-        pred = (probs > 0.5).long().squeeze(0).squeeze(0)
+        probs = torch.sigmoid(logits).squeeze(0).squeeze(0)
+        pred = (probs > threshold).long()
+        target_probs = probs
     else:
-        probs = torch.softmax(logits, dim=1)
-        pred = torch.argmax(probs, dim=1).squeeze(0)
+        probs = torch.softmax(logits, dim=1).squeeze(0)
+        target_probs = probs[1]  # Probability of class 1 (seagrass)
+        pred = (target_probs > threshold).long()
 
+    if return_probs:
+        return pred.cpu().numpy(), target_probs.cpu().numpy()
     return pred.cpu().numpy()
 
 
@@ -72,6 +82,8 @@ def generate_prediction_pdf(
     ignore_index: int = -100,
     seed: int = 42,
     device: str = "cuda",
+    threshold: float = 0.5,
+    show_probs: bool = False,
 ) -> None:
     """Generate PDF with image | label | prediction columns."""
     if class_names is None:
@@ -96,20 +108,24 @@ def generate_prediction_pdf(
     cmap = plt.colormaps.get_cmap("tab10").resampled(n_classes + 1)
 
     samples_per_page = 4
+    n_cols = 4 if show_probs else 3
     n_pages = (len(samples) + samples_per_page - 1) // samples_per_page
 
-    print(f"Generating predictions for {len(samples)} chips...")
+    print(f"Generating predictions for {len(samples)} chips (threshold={threshold})...")
 
     with PdfPages(output_path) as pdf:
         for page in tqdm(range(n_pages), desc="Generating pages"):
-            fig, axes = plt.subplots(samples_per_page, 3, figsize=(12, 12))
+            fig, axes = plt.subplots(samples_per_page, n_cols, figsize=(4 * n_cols, 12))
             start_idx = page * samples_per_page
 
             for i in range(samples_per_page):
                 sample_idx = start_idx + i
-                ax_img = axes[i, 0]
-                ax_label = axes[i, 1]
-                ax_pred = axes[i, 2]
+
+                if show_probs:
+                    ax_img, ax_label, ax_prob, ax_pred = axes[i]
+                else:
+                    ax_img, ax_label, ax_pred = axes[i]
+                    ax_prob = None
 
                 if sample_idx < len(samples):
                     f = samples[sample_idx]
@@ -117,7 +133,20 @@ def generate_prediction_pdf(
                     image = data["image"]
                     label = data["label"]
 
-                    pred = predict_chip(model, image, transforms, device, num_classes)
+                    if show_probs:
+                        pred, probs = predict_chip(
+                            model,
+                            image,
+                            transforms,
+                            device,
+                            num_classes,
+                            threshold,
+                            return_probs=True,
+                        )
+                    else:
+                        pred = predict_chip(
+                            model, image, transforms, device, num_classes, threshold
+                        )
 
                     ax_img.imshow(image)
                     ax_img.set_title(f.name, fontsize=8)
@@ -136,6 +165,12 @@ def generate_prediction_pdf(
                     ax_label.set_title("Ground Truth", fontsize=8)
                     ax_label.axis("off")
 
+                    if show_probs and ax_prob is not None:
+                        im = ax_prob.imshow(probs, cmap="RdYlGn", vmin=0, vmax=1)
+                        ax_prob.set_title(f"P({class_names[1]})", fontsize=8)
+                        ax_prob.axis("off")
+                        plt.colorbar(im, ax=ax_prob, fraction=0.046, pad=0.04)
+
                     ax_pred.imshow(
                         pred,
                         cmap=cmap,
@@ -143,12 +178,14 @@ def generate_prediction_pdf(
                         vmax=n_classes,
                         interpolation="nearest",
                     )
-                    ax_pred.set_title("Prediction", fontsize=8)
+                    ax_pred.set_title(f"Pred (t={threshold})", fontsize=8)
                     ax_pred.axis("off")
                 else:
                     ax_img.axis("off")
                     ax_label.axis("off")
                     ax_pred.axis("off")
+                    if ax_prob is not None:
+                        ax_prob.axis("off")
 
             if page == 0:
                 legend_elements = [
@@ -247,6 +284,17 @@ if __name__ == "__main__":
         default="cuda",
         help="Device to run inference on (default: cuda)",
     )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.5,
+        help="Classification threshold for positive class (default: 0.5)",
+    )
+    parser.add_argument(
+        "--show-probs",
+        action="store_true",
+        help="Show probability heatmap column",
+    )
 
     args = parser.parse_args()
 
@@ -260,4 +308,6 @@ if __name__ == "__main__":
         ignore_index=args.ignore_index,
         seed=args.seed,
         device=args.device,
+        threshold=args.threshold,
+        show_probs=args.show_probs,
     )
