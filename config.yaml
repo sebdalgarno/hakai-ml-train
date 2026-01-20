@@ -240,5 +240,6 @@ data:
           transpose_mask: false
 optimizer: null
 lr_scheduler: null
-ckpt_path: null
+ckpt_path: ./seagrass-rgb/491ywzwx/checkpoints/last.ckpt
+verbose: true
 weights_only: null
