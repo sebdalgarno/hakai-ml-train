@@ -69,8 +69,8 @@ data:
             p: 0.5
           - __class_fullname__: RandomGamma
             gamma_limit:
-              - 0.8
-              - 1.2
+              - 80
+              - 120
             p: 0.3
           - __class_fullname__: GaussianBlur
             blur_limit:
