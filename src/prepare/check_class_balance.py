@@ -205,12 +205,66 @@ def generate_stats_pdf(
     class_names: dict[int, str] | None = None,
     ignore_index: int = -100,
 ) -> None:
-    """Generate PDF with chip counts and class balance stats."""
+    """Generate PDF with chip counts and class balance stats, also prints to console."""
     if class_names is None:
         class_names = {0: "bg", 1: "class_1"}
 
     splits = ["train", "val", "test"]
 
+    # Collect stats once
+    all_stats = {}
+    counts_data = []
+    total_chips = 0
+
+    print("\n" + "=" * 60)
+    print("  CHIP COUNTS")
+    print("=" * 60)
+    print(f"\nDataset: {chip_dir}")
+    print("-" * 40)
+    print(f"{'Split':<10} {'Chips':>15}")
+    print("-" * 40)
+
+    for split in splits:
+        split_dir = chip_dir / split
+        if split_dir.exists():
+            count = len(list(split_dir.glob("*.npz")))
+            counts_data.append([split, f"{count:,}"])
+            total_chips += count
+            print(f"{split:<10} {count:>15,}")
+            all_stats[split] = get_class_balance_stats(split_dir, class_names, ignore_index)
+        else:
+            print(f"{split:<10} {'(not found)':>15}")
+
+    counts_data.append(["TOTAL", f"{total_chips:,}"])
+    print("-" * 40)
+    print(f"{'TOTAL':<10} {total_chips:>15,}")
+    print("-" * 40)
+
+    # Print class balance to console
+    for split in splits:
+        if split in all_stats and all_stats[split]:
+            stats = all_stats[split]
+            print(f"\n{'='*60}")
+            print(f"  {split.upper()} - CLASS BALANCE")
+            print(f"{'='*60}")
+            print(f"\nTotal chips: {stats['total_chips']:,}")
+            print(f"Total pixels (excluding ignore): {stats['total_pixels']:,}")
+            print("\nClass distribution:")
+            print("-" * 60)
+            print(f"{'Class':<15} {'Pixels':>15} {'%':>8}")
+            print("-" * 60)
+            for k in sorted(stats["counts"].keys()):
+                if k == ignore_index:
+                    name = "ignore"
+                    pct = 0
+                else:
+                    name = class_names.get(k, f"class_{k}")
+                    pct = stats["counts"][k] / stats["total_pixels"] * 100
+                print(f"{name:<15} {stats['counts'][k]:>15,} {pct:>7.1f}%")
+            print("-" * 60)
+            print(f"\nImbalance ratio (max/min): {stats['imbalance_ratio']:.1f}:1")
+
+    # Generate PDF
     with PdfPages(output_path) as pdf:
         fig, axes = plt.subplots(2, 1, figsize=(10, 12))
 
@@ -218,16 +272,6 @@ def generate_stats_pdf(
         ax_counts = axes[0]
         ax_counts.axis("off")
         ax_counts.set_title("Chip Counts", fontsize=14, fontweight="bold", loc="left")
-
-        counts_data = []
-        total = 0
-        for split in splits:
-            split_dir = chip_dir / split
-            if split_dir.exists():
-                count = len(list(split_dir.glob("*.npz")))
-                counts_data.append([split, f"{count:,}"])
-                total += count
-        counts_data.append(["TOTAL", f"{total:,}"])
 
         table1 = ax_counts.table(
             cellText=counts_data,
@@ -247,36 +291,40 @@ def generate_stats_pdf(
 
         balance_data = []
         for split in splits:
-            split_dir = chip_dir / split
-            if split_dir.exists():
-                stats = get_class_balance_stats(split_dir, class_names, ignore_index)
-                if stats:
-                    for k in sorted(stats["counts"].keys()):
-                        if k == ignore_index:
-                            continue
-                        name = class_names.get(k, f"class_{k}")
-                        pct = stats["counts"][k] / stats["total_pixels"] * 100
-                        balance_data.append([
-                            split,
-                            name,
-                            f"{stats['counts'][k]:,}",
-                            f"{pct:.1f}%",
-                        ])
+            if split in all_stats and all_stats[split]:
+                stats = all_stats[split]
+                for k in sorted(stats["counts"].keys()):
+                    if k == ignore_index:
+                        continue
+                    name = class_names.get(k, f"class_{k}")
+                    pct = stats["counts"][k] / stats["total_pixels"] * 100
+                    chip_count = stats["chips_with_class"].get(k, 0)
+                    chip_pct = chip_count / stats["total_chips"] * 100
                     balance_data.append([
                         split,
-                        "Imbalance ratio",
-                        f"{stats['imbalance_ratio']:.1f}:1",
-                        "",
+                        name,
+                        f"{stats['counts'][k]:,}",
+                        f"{pct:.1f}%",
+                        f"{chip_count:,}",
+                        f"{chip_pct:.1f}%",
                     ])
-                    balance_data.append(["", "", "", ""])
+                balance_data.append([
+                    split,
+                    "Imbalance ratio",
+                    f"{stats['imbalance_ratio']:.1f}:1",
+                    "",
+                    "",
+                    "",
+                ])
+                balance_data.append(["", "", "", "", "", ""])
 
         if balance_data:
             table2 = ax_balance.table(
                 cellText=balance_data,
-                colLabels=["Split", "Class", "Pixels", "%"],
+                colLabels=["Split", "Class", "Pixels", "%", "Chips", "% Chips"],
                 loc="upper left",
                 cellLoc="left",
-                colWidths=[0.2, 0.25, 0.25, 0.15],
+                colWidths=[0.15, 0.18, 0.18, 0.12, 0.15, 0.12],
             )
             table2.auto_set_font_size(False)
             table2.set_fontsize(9)
@@ -286,7 +334,7 @@ def generate_stats_pdf(
         pdf.savefig(fig)
         plt.close(fig)
 
-    print(f"Saved stats to: {output_path}")
+    print(f"\nSaved stats to: {output_path}")
 
 
 def generate_report(
@@ -351,27 +399,33 @@ def generate_report(
                             continue
                         name = class_names.get(k, f"class_{k}")
                         pct = stats["counts"][k] / stats["total_pixels"] * 100
+                        chip_count = stats["chips_with_class"].get(k, 0)
+                        chip_pct = chip_count / stats["total_chips"] * 100
                         balance_data.append([
                             split,
                             name,
                             f"{stats['counts'][k]:,}",
                             f"{pct:.1f}%",
+                            f"{chip_count:,}",
+                            f"{chip_pct:.1f}%",
                         ])
                     balance_data.append([
                         split,
                         "Imbalance ratio",
                         f"{stats['imbalance_ratio']:.1f}:1",
                         "",
+                        "",
+                        "",
                     ])
-                    balance_data.append(["", "", "", ""])
+                    balance_data.append(["", "", "", "", "", ""])
 
         if balance_data:
             table2 = ax_balance.table(
                 cellText=balance_data,
-                colLabels=["Split", "Class", "Pixels", "%"],
+                colLabels=["Split", "Class", "Pixels", "%", "Chips", "% Chips"],
                 loc="upper left",
                 cellLoc="left",
-                colWidths=[0.2, 0.25, 0.25, 0.15],
+                colWidths=[0.15, 0.18, 0.18, 0.12, 0.15, 0.12],
             )
             table2.auto_set_font_size(False)
             table2.set_fontsize(9)
