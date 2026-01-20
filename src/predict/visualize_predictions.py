@@ -88,8 +88,6 @@ def generate_prediction_pdf(
     if class_names is None:
         class_names = ["bg", "class_1"]
 
-    class_names_dict = {i: name for i, name in enumerate(class_names)}
-
     model, config = load_model(config_path, ckpt_path, device)
     transforms = get_test_transforms(config)
 
@@ -106,107 +104,66 @@ def generate_prediction_pdf(
     n_classes = len(class_names)
     cmap = plt.colormaps.get_cmap("tab10").resampled(n_classes + 1)
 
-    samples_per_page = 4
-    n_pages = (len(samples) + samples_per_page - 1) // samples_per_page
+    n_pages = len(samples)
 
     print(f"Generating predictions for {len(samples)} chips (threshold={threshold})...")
 
     with PdfPages(output_path) as pdf:
         for page in tqdm(range(n_pages), desc="Generating pages"):
-            fig, axes = plt.subplots(samples_per_page, 4, figsize=(16, 12))
-            start_idx = page * samples_per_page
+            fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+            ax_img = axes[0, 0]
+            ax_label = axes[0, 1]
+            ax_prob = axes[1, 0]
+            ax_pred = axes[1, 1]
 
-            for i in range(samples_per_page):
-                sample_idx = start_idx + i
-                ax_img, ax_label, ax_prob, ax_pred = axes[i]
+            f = samples[page]
+            data = np.load(f)
+            image = data["image"]
+            label = data["label"]
 
-                if sample_idx < len(samples):
-                    f = samples[sample_idx]
-                    data = np.load(f)
-                    image = data["image"]
-                    label = data["label"]
+            pred, probs = predict_chip(
+                model,
+                image,
+                transforms,
+                device,
+                num_classes,
+                threshold,
+                return_probs=True,
+            )
 
-                    pred, probs = predict_chip(
-                        model,
-                        image,
-                        transforms,
-                        device,
-                        num_classes,
-                        threshold,
-                        return_probs=True,
-                    )
+            ax_img.imshow(image)
+            ax_img.set_title(f.name, fontsize=10)
+            ax_img.axis("off")
 
-                    ax_img.imshow(image)
-                    ax_img.set_title(f.name, fontsize=8)
-                    ax_img.axis("off")
+            label_display = label.copy().astype(float)
+            label_display[label == ignore_index] = np.nan
 
-                    label_display = label.copy().astype(float)
-                    label_display[label == ignore_index] = np.nan
+            ax_label.imshow(
+                label_display,
+                cmap=cmap,
+                vmin=0,
+                vmax=n_classes,
+                interpolation="nearest",
+            )
+            ax_label.set_title("Ground Truth", fontsize=10)
+            ax_label.axis("off")
 
-                    ax_label.imshow(
-                        label_display,
-                        cmap=cmap,
-                        vmin=0,
-                        vmax=n_classes,
-                        interpolation="nearest",
-                    )
-                    ax_label.set_title("Ground Truth", fontsize=8)
-                    ax_label.axis("off")
+            im = ax_prob.imshow(probs, cmap="coolwarm", vmin=0, vmax=1)
+            ax_prob.set_title(f"P({class_names[1]})", fontsize=10)
+            ax_prob.axis("off")
+            plt.colorbar(im, ax=ax_prob, fraction=0.046, pad=0.04)
 
-                    im = ax_prob.imshow(probs, cmap="RdYlGn", vmin=0, vmax=1)
-                    ax_prob.set_title(f"P({class_names[1]})", fontsize=8)
-                    ax_prob.axis("off")
-                    plt.colorbar(im, ax=ax_prob, fraction=0.046, pad=0.04)
-
-                    ax_pred.imshow(
-                        pred,
-                        cmap=cmap,
-                        vmin=0,
-                        vmax=n_classes,
-                        interpolation="nearest",
-                    )
-                    ax_pred.set_title(f"Pred (t={threshold})", fontsize=8)
-                    ax_pred.axis("off")
-                else:
-                    ax_img.axis("off")
-                    ax_label.axis("off")
-                    ax_prob.axis("off")
-                    ax_pred.axis("off")
-
-            if page == 0:
-                legend_elements = [
-                    plt.Line2D(
-                        [0],
-                        [0],
-                        marker="s",
-                        color="w",
-                        markerfacecolor=cmap(i),
-                        markersize=10,
-                        label=name,
-                    )
-                    for i, name in class_names_dict.items()
-                ]
-                legend_elements.append(
-                    plt.Line2D(
-                        [0],
-                        [0],
-                        marker="s",
-                        color="w",
-                        markerfacecolor="white",
-                        markeredgecolor="gray",
-                        markersize=10,
-                        label="ignore",
-                    )
-                )
-                fig.legend(
-                    handles=legend_elements,
-                    loc="upper center",
-                    ncol=len(legend_elements),
-                    fontsize=8,
-                )
+            ax_pred.imshow(
+                pred,
+                cmap=cmap,
+                vmin=0,
+                vmax=n_classes,
+                interpolation="nearest",
+            )
+            ax_pred.set_title(f"Pred (t={threshold})", fontsize=10)
+            ax_pred.axis("off")
 
             plt.tight_layout()
-            plt.subplots_adjust(top=0.93)
             pdf.savefig(fig)
             plt.close(fig)
 

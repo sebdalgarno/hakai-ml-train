@@ -13,6 +13,7 @@ OUTPUT_DIR="outputs"
 # PARAMETERS -----
 CLASS_NAMES="bg seagrass"
 N_SAMPLES=480
+THRESHOLD=0.5
 
 # RUN -----
 mkdir -p "$OUTPUT_DIR"
@@ -25,7 +26,8 @@ for split in val test; do
             --ckpt "$CKPT" \
             --output "$OUTPUT_DIR/predictions_${split}.pdf" \
             --n-samples "$N_SAMPLES" \
-            --class-names $CLASS_NAMES
+            --class-names $CLASS_NAMES \
+            --threshold "$THRESHOLD"
     fi
 done
 
