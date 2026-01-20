@@ -133,14 +133,14 @@ trainer:
   logger:
     - class_path: lightning.pytorch.loggers.WandbLogger
       init_args:
-        entity: hakai
-        project: kom-seagrass-rgb
+        entity: sebdalgarno-poisson-consulting
+        project: seagrass-rgb
         name: unetpp_resnet34
         group: baseline_comparison
         log_model: true
         tags:
           - seagrass
-          - Jan2026
+          - baseline_comparison
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:

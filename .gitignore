@@ -165,6 +165,7 @@ outputs/
 
 !/src/kelp-pa-aco/training/checkpoints/
 
+wandb/
 src/kelp-pa-aco/training/wandb/
 train/wandb/
 lightning_logs/
