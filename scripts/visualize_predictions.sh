@@ -12,7 +12,7 @@ OUTPUT_DIR="outputs"
 
 # PARAMETERS -----
 CLASS_NAMES="bg seagrass"
-N_SAMPLES=480
+N_SAMPLES=60
 THRESHOLD=0.5
 
 # RUN -----
