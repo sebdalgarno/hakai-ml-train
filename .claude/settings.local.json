@@ -4,7 +4,8 @@
       "Bash(chmod:*)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(uv run ruff:*)"
+      "Bash(uv run ruff:*)",
+      "WebSearch"
     ]
   }
 }
