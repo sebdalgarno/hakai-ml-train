@@ -8,7 +8,12 @@
       "WebSearch",
       "WebFetch(domain:arxiv.org)",
       "WebFetch(domain:www.mdpi.com)",
-      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)"
+      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
+      "mcp__r-btw__btw_tool_files_list_files",
+      "Bash(find:*)",
+      "Bash(ruff check:*)",
+      "Bash(source:*)",
+      "Bash(ruff format:*)"
     ]
   }
 }
