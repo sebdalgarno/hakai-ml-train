@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a PyTorch Lightning-based training repository for semantic segmentation models used in marine ecology research. The models detect kelp forests and mussel beds from aerial/drone imagery. Trained models are exported to ONNX format and deployed to the Kelp-o-Matic inference pipeline.
+This is a PyTorch Lightning-based training repository for semantic segmentation models used in marine ecology research. Code exists in this repo to train models for kelp and mussels but the focus of this project is to modify the repo to train a model for seagrass segmentation. Trained models are exported to ONNX format and deployed to the Habitat-Mapper (previousl Kelp-O-Matic) inference pipeline.
 
 ## Common Development Commands
 
