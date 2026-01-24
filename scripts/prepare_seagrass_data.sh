@@ -22,7 +22,7 @@ DTYPE="uint8"
 REMAP="0 -100 1"
 
 # PROTOTYPE SAMPLING -----
-CHIPS_PER_SITE=500  # Fixed number of chips per site (use --fraction instead if preferred)
+PROTOTYPE_FRACTION=0.10  # Fraction applied to smallest site, then sampled equally from all
 SEED=42
 
 # Step 1: Create all chips -----
@@ -51,7 +51,7 @@ done
 echo ""
 echo "Step 3: Sampling prototype dataset (equal chips per site)..."
 python -m src.prepare.sample_prototype_by_site "$MAIN_CHIP_DIR" "$PROTOTYPE_CHIP_DIR" \
-    --chips-per-site "$CHIPS_PER_SITE" \
+    --fraction "$PROTOTYPE_FRACTION" \
     --seed "$SEED"
 
 # Summary -----

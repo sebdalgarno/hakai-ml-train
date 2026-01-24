@@ -66,7 +66,7 @@ def sample_chips(
         input_dir: Directory containing chip .npz files
         output_dir: Directory to write sampled chips
         chips_per_site: Fixed number of chips per site (overrides fraction)
-        fraction: Fraction of chips to sample from each site
+        fraction: Fraction of TOTAL chips to sample, distributed equally per site
         seed: Random seed for reproducibility
         copy: If True, copy files; if False, move files
 
@@ -84,19 +84,27 @@ def sample_chips(
 
     # Determine chips per site
     site_counts = {site: len(chips) for site, chips in chips_by_site.items()}
+    total_chips = sum(site_counts.values())
     min_chips = min(site_counts.values())
+    num_sites = len(chips_by_site)
 
     if chips_per_site is not None:
         target_per_site = min(chips_per_site, min_chips)
     elif fraction is not None:
-        # Use fraction of the smallest site to ensure all sites can contribute equally
-        target_per_site = max(1, int(min_chips * fraction))
+        # Calculate target as fraction of total, divided equally among sites
+        # e.g., 10% of 100,000 chips with 20 sites = 500 chips per site
+        total_target = int(total_chips * fraction)
+        target_per_site = max(1, total_target // num_sites)
+        # Cap at smallest site's count
+        target_per_site = min(target_per_site, min_chips)
     else:
         raise ValueError("Must specify either chips_per_site or fraction")
 
-    print(f"Sites: {len(chips_by_site)}")
+    print(f"Sites: {num_sites}")
+    print(f"Total chips: {total_chips}")
     print(f"Chips per site range: {min_chips} - {max(site_counts.values())}")
     print(f"Target chips per site: {target_per_site}")
+    print(f"Expected total sampled: {target_per_site * num_sites} ({100 * target_per_site * num_sites / total_chips:.1f}%)")
 
     sampled_counts = {}
     operation = shutil.copy2 if copy else shutil.move
