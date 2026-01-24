@@ -81,7 +81,7 @@ trainer:
       log_momentum: false
       log_weight_decay: false
   fast_dev_run: false
-  max_epochs: 100
+  max_epochs: 2
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -149,8 +149,8 @@ data:
     train_chip_dir: /mnt/class_data/sdalgarno/prototype/chips/train
     val_chip_dir: /mnt/class_data/sdalgarno/prototype/chips/val
     test_chip_dir: /mnt/class_data/sdalgarno/prototype/chips/test
-    batch_size: 8
-    num_workers: 8
+    batch_size: 40
+    num_workers: 16
     pin_memory: true
     persistent_workers: true
     train_transforms:
@@ -240,6 +240,5 @@ data:
           transpose_mask: false
 optimizer: null
 lr_scheduler: null
-ckpt_path: ./seagrass-rgb/491ywzwx/checkpoints/last.ckpt
-verbose: true
+ckpt_path: null
 weights_only: null

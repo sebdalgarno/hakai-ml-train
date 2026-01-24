@@ -2,13 +2,13 @@
 set -e
 
 # DIRECTORIES -----
-RAW_DIR="/mnt/class_data/sdalgarno/main/raw_data"
-MAIN_CHIP_DIR="/mnt/class_data/sdalgarno/main/chips"
-PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
+RAW_DIR="/mnt/class_data/sdalgarno/prototype/raw_data"
+MAIN_CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
+PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype2/chips"
 
 # CHIP PARAMETERS -----
 CHIP_SIZE=512
-TRAIN_STRIDE=256   # 50% overlap
+TRAIN_STRIDE=128   # 75% overlap
 EVAL_STRIDE=512    # No overlap
 NUM_BANDS=3
 DTYPE="uint8"
