@@ -15,7 +15,7 @@ PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype2/chips"
 
 # CHIP PARAMETERS -----
 CHIP_SIZE=512
-TRAIN_STRIDE=256   # 50% overlap
+TRAIN_STRIDE=384   # 50% overlap
 EVAL_STRIDE=512    # No overlap
 NUM_BANDS=3
 DTYPE="uint8"
