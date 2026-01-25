@@ -111,83 +111,161 @@ Use this split if 9 sites are unavailable (Goose Grass Bay, Jaques Jarvis, Nettl
 | Central | 8     |
 | North   | 15    |
 
-### TEST (6 sites, 15%)
+### TEST (6 sites, 14%)
 
 | Site | Region | Chips | Difficulty | Quality | Key Conditions |
 |------------|------------|------------|------------|------------|--------------|
-| McMullin North | Central | 2,888 | L | E/G | Clear |
-| Triquet Bay | Central | 2,400 | H/M | E/G/M | Difficult edge, other species |
-| Bag Harbour | North | 2,028 | L | E | Excellent baseline |
-| Section Cove | North | 1,810 | M/L | E/G | Hazy lighting |
-| Sedgwick | North | 1,558 | H/M | G/M | Overcast, cloud reflections |
-| Beck | South | 1,034 | H | M | Shadows, sparse eelgrass |
-| **Total** |  | **11,718** |  |  |  |
+| McMullin North | Central | 4,437 | L | E/G | Clear |
+| Triquet Bay | Central | 3,726 | H/M | E/G/M | Difficult edge, other species |
+| Bag Harbour | North | 1,852 | L | E | Excellent baseline |
+| Section Cove | North | 1,603 | M/L | E/G | Hazy lighting |
+| Sedgwick | North | 634 | H/M | G/M | Overcast, cloud reflections |
+| Beck | South | 577 | H | M | Shadows, sparse eelgrass |
+| **Total** |  | **12,829** |  |  |  |
 
-### VALIDATION (6 sites, 10%)
+### VALIDATION (6 sites, 11%)
 
 | Site | Region | Chips | Difficulty | Quality | Key Conditions |
 |------------|------------|------------|------------|------------|--------------|
-| Superstition | Central | 4,062 | H/L | E/G/M | Sparse, fog, algae (4 visits) |
-| Kendrick Point | North | 2,270 | M/L | E | Bleaching |
-| Auseth | South | 1,494 | L | E | Excellent baseline |
-| Triquet | Central | 1,152 | L | E | Clear baseline |
-| Louscoone | North | 1,100 | M/L | E/G | Overcast |
-| Bennett Bay | South | 644 | H | M | Cloudy, glint |
-| **Total** |  | **10,722** |  |  |  |
+| Superstition | Central | 4,500 | H/L | E/G/M | Sparse, fog, algae (4 visits) |
+| Kendrick Point | North | 2,322 | M/L | E | Bleaching |
+| Auseth | South | 1,082 | L | E | Excellent baseline |
+| Triquet | Central | 724 | L | E | Clear baseline |
+| Louscoone | North | 673 | M/L | E/G | Overcast |
+| Bennett Bay | South | 310 | H | M | Cloudy, glint |
+| **Total** |  | **9,611** |  |  |  |
 
-### TRAINING (16 sites, 75%)
+### TRAINING (17 sites, 75%)
 
 **South (3 sites):**
 
 | Site         | Chips      | Difficulty | Quality | Key Conditions                   |
 |--------------|------------|------------|---------|----------------------------------|
 | Grice Bay    | 7,870      | H          | G       | Large sparse, coarse delineation |
-| Arakun       | 2,064      | L          | G       | —                                |
-| Calmus       | 1,314      | L          | E       | —                                |
-| **Subtotal** | **11,248** |            |         |                                  |
+| Calmus       | 1,961      | L          | E       | —                                |
+| Arakun       | 299        | L          | G       | —                                |
+| **Subtotal** | **10,130** |            |         |                                  |
 
 **Central (4 sites):**
 
-| Site | Chips | Difficulty | Quality | Key Conditions |
-|--------------|--------------|--------------|--------------|------------------|
-| Pruth Bay | 9,509 | M/L | E/G/M | Shadows, cloud reflections, subtidal (8 visits) |
-| Koeye | 8,538 | H/M/L | E/G/M | Tannins, turbidity, glint (9 visits) |
-| Goose SW | 6,014 | H/M/L | E/G | Turbidity, overcast, low density (3 visits) |
-| Choked Pass | 2,520 | L | G | Good all round |
-| **Subtotal** | **26,581** |  |  |  |
+| Site        | Chips      | Difficulty | Quality | Key Conditions                                   |
+|-------------|------------|------------|---------|--------------------------------------------------|
+| Koeye       | 17,076     | H/M/L      | E/G/M   | Tannins, turbidity, glint (9 visits)             |
+| Goose SW    | 10,642     | H/M/L      | E/G     | Turbidity, overcast, low density (3 visits)      |
+| Pruth Bay   | 9,509      | M/L        | E/G/M   | Shadows, cloud reflections, subtidal (8 visits)  |
+| Choked Pass | 4,832      | L          | G       | Good all round                                   |
+| **Subtotal** | **42,059** |           |         |                                                  |
 
-**North (9 sites):**
+**North (10 sites):**
 
 | Site                | Chips      | Difficulty | Quality | Key Conditions   |
 |---------------------|------------|------------|---------|------------------|
-| Balcolm Inlet       | 7,428      | M          | G       | Cloudy           |
-| Swan Bay            | 5,184      | L          | E       | Great conditions |
-| Island Bay          | 4,536      | L          | G       | —                |
-| Louscoone Head      | 3,776      | M/L        | E/G     | Shadows          |
-| Heater Harbour      | 2,864      | M          | G       | Dark, low light  |
-| Louscoone West      | 2,166      | L          | E       | —                |
-| Kendrick Point West | 1,768      | L          | E       | —                |
-| Beljay Bay          | 1,377      | L          | E       | —                |
-| Ramsay              | 1,080      | L          | G       | —                |
-| **Subtotal**        | **30,179** |            |         |                  |
+| Louscoone Head      | 4,522      | M/L        | E/G     | Shadows          |
+| Island Bay          | 2,614      | L          | G       | —                |
+| Ramsay              | 2,125      | L          | G       | —                |
+| Swan Bay            | 1,316      | L          | E       | Great conditions |
+| Beljay Bay          | 1,116      | L          | E       | —                |
+| Takelly Cove        | 1,097      | —          | G       | —                |
+| Balcolm Inlet       | 1,010      | M          | G       | Cloudy           |
+| Louscoone West      | 867        | L          | E       | —                |
+| Kendrick Point West | 691        | L          | E       | —                |
+| Heater Harbour      | 461        | M          | G       | Dark, low light  |
+| **Subtotal**        | **15,819** |            |         |                  |
 
-| **TRAIN TOTAL** \| **68,008** \| \| \| \|
+| **TRAIN TOTAL** | **68,008** | | | |
 
 ### Summary (Split B)
 
-| Bucket | Sites | Chips  | \%  | South | Central | North |
+| Bucket | Sites | Chips  | %   | South | Central | North |
 |--------|-------|--------|-----|-------|---------|-------|
-| Train  | 16    | 68,008 | 75% | 3     | 4       | 9     |
-| Val    | 6     | 10,722 | 12% | 2     | 2       | 2     |
-| Test   | 6     | 11,718 | 13% | 1     | 2       | 3     |
+| Train  | 17    | 68,008 | 75% | 3     | 4       | 10    |
+| Val    | 6     | 9,611  | 11% | 2     | 2       | 2     |
+| Test   | 6     | 12,829 | 14% | 1     | 2       | 3     |
+| **Total** | **29** | **90,448** | **100%** | **6** | **8** | **15** |
 
-Note: Chip counts are after nodata removal (28 sites total; takelly_cove had no chips after filtering). Largest sites (pruth_bay, grice_bay) moved to training to prevent single-site dominance in val/test metrics. Superstition swapped to val to balance difficulty across val/test
+Note: Chip counts are after nodata removal. Largest sites (pruth_bay, grice_bay) moved to training to prevent single-site dominance in val/test metrics. Superstition swapped to val to balance difficulty across val/test
 
 ------------------------------------------------------------------------
 
-## Condition Coverage
+## Prototype Dataset (Split B)
 
-Coverage across buckets (Split B revised).
+A reduced subset of Split B for rapid iteration during architecture selection and hyperparameter tuning. Selects specific orthos (individual survey visits) rather than entire sites to control dataset size while maintaining diversity.
+
+**Design principles:**
+- ~18% of full dataset (~17,000 chips) for fast training cycles
+- ~74/12/14 split (weighted toward train due to 25% chip overlap in training data)
+- One ortho per multi-visit site to maximize site diversity
+- All 3 regions represented in each bucket
+- Mix of difficulty levels and conditions in each bucket
+
+### TRAIN (9 orthos, ~12,400 chips, 74%)
+
+| Ortho | Chips | Region | Difficulty | Quality | Conditions |
+|-------|-------|--------|------------|---------|------------|
+| arakun_u0411 | 299 | South | L | G | baseline |
+| calmus_u0421 | 1,961 | South | L | E | baseline |
+| koeye_u0715 | 1,447 | Central | H/M/L | E/G/M | tannins, turbidity, glint |
+| pruth_bay_u0383 | 1,158 | Central | M/L | E/G/M | shadows, cloud reflections |
+| goose_sw_u1174 | 2,700 | Central | H/M/L | E/G | turbidity, overcast, low density |
+| heater_harbour_u0088 | 461 | North | M | G | dark, low light |
+| beljay_bay_u0479 | 1,116 | North | L | E | baseline |
+| kendrick_point_west_u0494 | 691 | North | L | E | baseline |
+| island_bay_u0486 | 2,614 | North | L | G | baseline |
+| **Subtotal** | **12,447** | 2S, 3C, 4N | | | |
+
+### VAL (4 orthos, ~2,000 chips, 12%)
+
+| Ortho | Chips | Region | Difficulty | Quality | Conditions |
+|-------|-------|--------|------------|---------|------------|
+| bennett_bay | 310 | South | H | M | cloudy, glint |
+| triquet_u1160 | 724 | Central | L | E | clear baseline |
+| superstition_u1280 | 635 | Central | H/L | E/G/M | fog, sparse, algae |
+| louscoone_u0091 | 317 | North | M/L | E/G | overcast |
+| **Subtotal** | **1,986** | 1S, 2C, 1N | | | |
+
+### TEST (4 orthos, ~2,300 chips, 14%)
+
+| Ortho | Chips | Region | Difficulty | Quality | Conditions |
+|-------|-------|--------|------------|---------|------------|
+| beck_u0409 | 577 | South | H | M | shadows, sparse |
+| triquet_bay_u0537 | 875 | Central | H/M | E/G/M | difficult edge |
+| sedgwick_u0085 | 250 | North | H/M | G/M | overcast, cloud reflections |
+| section_cove_u0249 | 562 | North | M/L | E/G | hazy lighting |
+| **Subtotal** | **2,264** | 1S, 1C, 2N | | | |
+
+### Summary (Prototype)
+
+| Split | Orthos | Sites | Chips | % | Difficulty | Quality |
+|-------|--------|-------|-------|---|------------|---------|
+| Train | 9 | 9 | 12,447 | 74% | 3H, 4M, 7L | 5E, 6G, 2M |
+| Val | 4 | 4 | 1,986 | 12% | 2H, 2M, 2L | 2E, 2G, 2M |
+| Test | 4 | 4 | 2,264 | 14% | 3H, 3M, 1L | 2E, 3G, 2M |
+| **Total** | **17** | **17** | **16,697** | 100% | | |
+
+### Prototype Condition Coverage
+
+| Condition | Train | Val | Test |
+|-----------|-------|-----|------|
+| Shadows | pruth_bay_u0383 | — | beck_u0409 |
+| Sparse eelgrass | — | superstition_u1280 | beck_u0409 |
+| Cloud reflections | pruth_bay_u0383 | — | sedgwick_u0085 |
+| Cloudy/overcast | goose_sw_u1174 | louscoone_u0091 | sedgwick_u0085 |
+| Glint | koeye_u0715 | bennett_bay | — |
+| Tannins | koeye_u0715 | — | — |
+| Turbidity | goose_sw_u1174, koeye_u0715 | — | — |
+| Dark/low light | heater_harbour_u0088 | — | — |
+| Difficult edge | — | — | triquet_bay_u0537 |
+| Fog/algae | — | superstition_u1280 | — |
+| Hazy lighting | — | — | section_cove_u0249 |
+| Clear baseline | arakun, calmus, beljay_bay, kendrick_point_west, island_bay | triquet_u1160 | — |
+
+Note: Difficulty/quality counts in summary reflect that some orthos span multiple levels (e.g., koeye H/M/L counted as 1H, 1M, 1L). Train weighted toward baseline sites to learn fundamentals; val/test include more challenging conditions.
+
+------------------------------------------------------------------------
+
+## Condition Coverage (Full Split B)
+
+Coverage across buckets for the full Split B dataset.
 
 | Condition | Train | Val | Test |
 |-------------------------|----------------|----------------|----------------|
