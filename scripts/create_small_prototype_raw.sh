@@ -1,0 +1,125 @@
+#!/bin/bash
+set -e
+
+# Create a smaller prototype by copying selected ortho TIFs.
+# Use this subset to create 1024 tiles without processing the full dataset.
+#
+# Copies from: /mnt/class_data/sdalgarno/main/raw_data/{train,val,test}/{images,labels}
+# Copies to:   /mnt/class_data/sdalgarno/prototype_small/raw_data/{train,val,test}/{images,labels}
+
+# DIRECTORIES -----
+SRC_DIR="/mnt/class_data/sdalgarno/main/raw_data"
+DST_DIR="/mnt/class_data/sdalgarno/prototype_small/raw_data"
+
+# ORTHO SELECTIONS -----
+# Train: Keep 5 orthos with regional balance and condition diversity
+TRAIN_ORTHOS=(
+    "calmus_u0421"           # South, baseline
+    "koeye_u0715"            # Central, tannins/turbidity/glint
+    "pruth_bay_u0383"        # Central, shadows/cloud reflections
+    "beljay_bay_u0479"       # North, baseline
+    "heater_harbour_u0088"   # North, dark/low light
+)
+
+# Val: Keep all 4 orthos
+VAL_ORTHOS=(
+    "bennett_bay"            # South, cloudy/glint
+    "triquet_u1160"          # Central, baseline
+    "superstition_u1280"     # Central, fog/sparse/algae
+    "louscoone_u0091"        # North, overcast
+)
+
+# Test: Keep all 4 orthos
+TEST_ORTHOS=(
+    "beck_u0409"             # South, shadows/sparse
+    "triquet_bay_u0537"      # Central, difficult edge
+    "sedgwick_u0085"         # North, overcast/cloud reflections
+    "section_cove_u0249"     # North, hazy lighting
+)
+
+# COPY FUNCTION -----
+copy_ortho_tif() {
+    local ortho=$1
+    local split=$2
+
+    local src_img="$SRC_DIR/$split/images"
+    local src_lbl="$SRC_DIR/$split/labels"
+    local dst_img="$DST_DIR/$split/images"
+    local dst_lbl="$DST_DIR/$split/labels"
+
+    # Try exact match first, then with wildcard for extension variations
+    local img_file=$(ls "$src_img"/${ortho}.tif 2>/dev/null || ls "$src_img"/${ortho}.tiff 2>/dev/null || echo "")
+    local lbl_file=$(ls "$src_lbl"/${ortho}.tif 2>/dev/null || ls "$src_lbl"/${ortho}.tiff 2>/dev/null || echo "")
+
+    if [[ -n "$img_file" && -n "$lbl_file" ]]; then
+        echo "  $ortho: copying image + label"
+        cp "$img_file" "$dst_img/"
+        cp "$lbl_file" "$dst_lbl/"
+    else
+        # Report what's missing
+        if [[ -z "$img_file" ]]; then
+            echo "  [WARNING] No image found: $ortho in $split"
+        fi
+        if [[ -z "$lbl_file" ]]; then
+            echo "  [WARNING] No label found: $ortho in $split"
+        fi
+    fi
+}
+
+# CREATE DIRECTORIES -----
+echo "=============================================="
+echo "Creating small prototype raw data"
+echo "=============================================="
+echo "Source: $SRC_DIR"
+echo "Destination: $DST_DIR"
+echo ""
+
+mkdir -p "$DST_DIR/train/images"
+mkdir -p "$DST_DIR/train/labels"
+mkdir -p "$DST_DIR/val/images"
+mkdir -p "$DST_DIR/val/labels"
+mkdir -p "$DST_DIR/test/images"
+mkdir -p "$DST_DIR/test/labels"
+
+# COPY TRAIN -----
+echo "TRAIN (5 orthos):"
+for ortho in "${TRAIN_ORTHOS[@]}"; do
+    copy_ortho_tif "$ortho" "train"
+done
+train_img=$(ls -1 "$DST_DIR/train/images"/*.tif* 2>/dev/null | wc -l | tr -d ' ')
+train_lbl=$(ls -1 "$DST_DIR/train/labels"/*.tif* 2>/dev/null | wc -l | tr -d ' ')
+echo "  Total: $train_img images, $train_lbl labels"
+echo ""
+
+# COPY VAL -----
+echo "VAL (4 orthos):"
+for ortho in "${VAL_ORTHOS[@]}"; do
+    copy_ortho_tif "$ortho" "val"
+done
+val_img=$(ls -1 "$DST_DIR/val/images"/*.tif* 2>/dev/null | wc -l | tr -d ' ')
+val_lbl=$(ls -1 "$DST_DIR/val/labels"/*.tif* 2>/dev/null | wc -l | tr -d ' ')
+echo "  Total: $val_img images, $val_lbl labels"
+echo ""
+
+# COPY TEST -----
+echo "TEST (4 orthos):"
+for ortho in "${TEST_ORTHOS[@]}"; do
+    copy_ortho_tif "$ortho" "test"
+done
+test_img=$(ls -1 "$DST_DIR/test/images"/*.tif* 2>/dev/null | wc -l | tr -d ' ')
+test_lbl=$(ls -1 "$DST_DIR/test/labels"/*.tif* 2>/dev/null | wc -l | tr -d ' ')
+echo "  Total: $test_img images, $test_lbl labels"
+echo ""
+
+# SUMMARY -----
+echo "=============================================="
+echo "COMPLETE"
+echo "=============================================="
+echo "Small prototype raw data: $DST_DIR"
+echo "  Train: $train_img orthos"
+echo "  Val:   $val_img orthos"
+echo "  Test:  $test_img orthos"
+total=$((train_img + val_img + test_img))
+echo "  Total: $total orthos"
+echo ""
+echo "Next: Create 1024 tiles with make_chip_dataset.py"
