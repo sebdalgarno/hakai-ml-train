@@ -4,8 +4,8 @@
 set -e  # Exit on error
 
 # DIRECTORIES -----
-RAW_DIR="/mnt/class_data/sdalgarno/prototype_small/raw_data"
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype_small/chips_1024"
+RAW_DIR="/mnt/class_data/sdalgarno/prototype/raw_data"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_1024"
 
 
 # CHIP PARAMETERS -----
