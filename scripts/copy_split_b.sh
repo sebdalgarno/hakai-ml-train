@@ -1,27 +1,40 @@
 #!/bin/bash
 set -e
 
-# Copy ortho and label files according to Split B (29 sites) from seagrass-dataset-splits.md
+# Copy ortho and label files according to Split B REVISED (28 sites) from seagrass-dataset-splits.md
 # Structure: clean_subset/{site}_{visit_id}/images/{site}_{visit_id}.tif
+#
+# Revisions:
+# 1. pruth_bay and grice_bay moved to train to prevent single-site dominance
+# 2. superstition swapped to val, mcmullin_north to test to balance difficulty
 
 # PATHS -----
 SRC_DIR="/Volumes/MFA/eelgrassData/clean_subset2"
 DST_DIR="/Volumes/MFA/eelgrassData/model"
 
-# SPLIT B SITE ASSIGNMENTS -----
+# SPLIT B SITE ASSIGNMENTS (REVISED) -----
 # Site name prefixes (without visit IDs)
 
 TEST_SITES=(
-    "grice_bay"
-    "superstition"
-    "sedgwick"
+    # South
+    "beck"
+    # Central
+    "mcmullin_north"
+    "triquet_bay"
+    # North
     "bag_harbour"
+    "section_cove"
+    "sedgwick"
 )
 
 VAL_SITES=(
+    # South
+    "auseth"
     "bennett_bay"
-    "pruth_bay"
+    # Central
+    "superstition"
     "triquet"
+    # North
     "kendrick_point"
     "louscoone"
 )
@@ -29,15 +42,13 @@ VAL_SITES=(
 TRAIN_SITES=(
     # South
     "arakun"
-    "auseth"
-    "beck"
     "calmus"
+    "grice_bay"
     # Central
     "choked_pass"
     "goose_sw"
     "koeye"
-    "mcmullin_north"
-    "triquet_bay"
+    "pruth_bay"
     # North
     "balcolm_inlet"
     "beljay_bay"
@@ -47,9 +58,7 @@ TRAIN_SITES=(
     "louscoone_head"
     "louscoone_west"
     "ramsay"
-    "section_cove"
     "swan_bay"
-    "takelly_cove"
 )
 
 # CREATE DIRECTORIES -----
