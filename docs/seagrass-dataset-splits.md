@@ -263,6 +263,99 @@ Note: Difficulty/quality counts in summary reflect that some orthos span multipl
 
 ------------------------------------------------------------------------
 
+## Small Prototype Dataset
+
+A further reduced subset of the Prototype for rapid architecture and hyperparameter comparison. Reduces training to 5 orthos (~6,100 chips) while keeping the same val/test sets. Designed for fast iteration where relative performance matters more than absolute metrics.
+
+**Design principles:**
+- ~62% of prototype training data for faster training cycles
+- Same val/test as full prototype (evaluation on diverse conditions)
+- 5 training orthos covering all 3 regions
+- Mix of baseline and challenging conditions
+- Sufficient for architecture comparison (UNet++ vs DeepLabV3+ vs SegFormer)
+- Sufficient for coarse hyperparameter comparison (augmentation strategies, tile sizes)
+
+**Use cases:**
+- Initial architecture screening
+- Augmentation strategy comparison
+- Tile size comparison (512 vs 1024)
+- Learning rate range finding
+
+**Limitations:**
+- Absolute IoU will be lower than full training
+- Fine-grained hyperparameter tuning may not transfer perfectly
+- Validate top candidates on full prototype or Split B
+
+### TRAIN (5 orthos, ~6,100 chips)
+
+| Ortho | Chips | Region | Difficulty | Quality | Conditions |
+|-------|-------|--------|------------|---------|------------|
+| calmus_u0421 | 1,961 | South | L | E | baseline |
+| koeye_u0715 | 1,447 | Central | H/M/L | E/G/M | tannins, turbidity, glint |
+| pruth_bay_u0383 | 1,158 | Central | M/L | E/G/M | shadows, cloud reflections |
+| beljay_bay_u0479 | 1,116 | North | L | E | baseline |
+| heater_harbour_u0088 | 461 | North | M | G | dark, low light |
+| **Subtotal** | **~6,143** | 1S, 2C, 2N | | | |
+
+**Removed from full prototype train:** arakun_u0411, goose_sw_u1174, kendrick_point_west_u0494, island_bay_u0486
+
+### VAL (4 orthos, ~2,000 chips) — Same as Prototype
+
+| Ortho | Chips | Region | Difficulty | Quality | Conditions |
+|-------|-------|--------|------------|---------|------------|
+| bennett_bay | 310 | South | H | M | cloudy, glint |
+| triquet_u1160 | 724 | Central | L | E | clear baseline |
+| superstition_u1280 | 635 | Central | H/L | E/G/M | fog, sparse, algae |
+| louscoone_u0091 | 317 | North | M/L | E/G | overcast |
+| **Subtotal** | **1,986** | 1S, 2C, 1N | | | |
+
+### TEST (4 orthos, ~2,300 chips) — Same as Prototype
+
+| Ortho | Chips | Region | Difficulty | Quality | Conditions |
+|-------|-------|--------|------------|---------|------------|
+| beck_u0409 | 577 | South | H | M | shadows, sparse |
+| triquet_bay_u0537 | 875 | Central | H/M | E/G/M | difficult edge |
+| sedgwick_u0085 | 250 | North | H/M | G/M | overcast, cloud reflections |
+| section_cove_u0249 | 562 | North | M/L | E/G | hazy lighting |
+| **Subtotal** | **2,264** | 1S, 1C, 2N | | | |
+
+### Summary (Small Prototype)
+
+| Split | Orthos | Chips | % |
+|-------|--------|-------|---|
+| Train | 5 | ~6,143 | 59% |
+| Val | 4 | 1,986 | 19% |
+| Test | 4 | 2,264 | 22% |
+| **Total** | **13** | **~10,393** | 100% |
+
+Note: Train % is lower than standard 70% because val/test are held constant from full prototype. This is acceptable for comparison purposes where consistent evaluation matters more than maximum training data.
+
+### Small Prototype Condition Coverage
+
+| Condition | Train | Val | Test |
+|-----------|-------|-----|------|
+| Shadows | pruth_bay_u0383 | — | beck_u0409 |
+| Sparse eelgrass | — | superstition_u1280 | beck_u0409 |
+| Cloud reflections | pruth_bay_u0383 | — | sedgwick_u0085 |
+| Cloudy/overcast | — | louscoone_u0091 | sedgwick_u0085 |
+| Glint | koeye_u0715 | bennett_bay | — |
+| Tannins | koeye_u0715 | — | — |
+| Turbidity | koeye_u0715 | — | — |
+| Dark/low light | heater_harbour_u0088 | — | — |
+| Difficult edge | — | — | triquet_bay_u0537 |
+| Fog/algae | — | superstition_u1280 | — |
+| Hazy lighting | — | — | section_cove_u0249 |
+| Clear baseline | calmus_u0421, beljay_bay_u0479 | triquet_u1160 | — |
+
+Note: Removed orthos (goose_sw, island_bay, etc.) were mostly baseline conditions. The 5 retained training orthos still cover key challenging conditions (tannins, shadows, dark lighting) plus baselines from South and North regions.
+
+### Scripts
+
+- `scripts/create_small_prototype_raw.sh`: Copy raw TIF images/labels for selected orthos
+- `scripts/create_small_prototype.sh`: Copy pre-made 512px chips for selected orthos
+
+------------------------------------------------------------------------
+
 ## Condition Coverage (Full Split B)
 
 Coverage across buckets for the full Split B dataset.
