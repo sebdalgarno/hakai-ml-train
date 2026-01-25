@@ -13,7 +13,11 @@
       "Bash(find:*)",
       "Bash(ruff check:*)",
       "Bash(source:*)",
-      "Bash(ruff format:*)"
+      "Bash(ruff format:*)",
+      "Bash(for f in /mnt/class_data/sdalgarno/prototype/raw_data/{val,test}/images/*.tif)",
+      "Bash(do echo '=== $f ===')",
+      "Bash(gdalinfo:*)",
+      "Bash(done)"
     ]
   }
 }
