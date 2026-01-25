@@ -5,12 +5,12 @@ set -e  # Exit on error
 
 # DIRECTORIES -----
 RAW_DIR="/mnt/class_data/sdalgarno/prototype/raw_data"
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_1024"
 
 
 # CHIP PARAMETERS -----
-CHIP_SIZE=512
-CHIP_STRIDE=256
+CHIP_SIZE=1024
+CHIP_STRIDE=1024
 NUM_BANDS=3
 DTYPE="uint8"
 
