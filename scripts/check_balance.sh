@@ -3,7 +3,7 @@
 set -e
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype2/chips"
+CHIP_DIR="/mnt/class_data/sdalgarno/main/chips_512"
 OUTPUT_DIR="outputs"
 
 # PARAMETERS -----
