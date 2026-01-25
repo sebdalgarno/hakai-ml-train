@@ -127,6 +127,7 @@ trainer:
   max_epochs: 200
   accumulate_grad_batches: 2
   gradient_clip_val: 0.5
+  check_val_every_n_epoch: 1
   detect_anomaly: false
   default_root_dir: checkpoints
   fast_dev_run: False
@@ -157,7 +158,8 @@ trainer:
       init_args:
         monitor: val/iou_epoch
         mode: max
-        patience: 10
+        patience: 20
+        min_delta: 0.002
     - class_path: lightning.pytorch.callbacks.LearningRateMonitor
       init_args:
         logging_interval: step

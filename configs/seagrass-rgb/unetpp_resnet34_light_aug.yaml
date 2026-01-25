@@ -46,6 +46,35 @@ data:
         transforms:
           - __class_fullname__: D4
             p: 1.0
+          - __class_fullname__: OneOf
+            p: 0.5
+            transforms:
+              - __class_fullname__: RandomBrightnessContrast
+                brightness_by_max: true
+                brightness_limit:
+                  - -0.1
+                  - 0.1
+                contrast_limit:
+                  - -0.1
+                  - 0.1
+                ensure_safe_range: false
+                p: 1.0
+              - __class_fullname__: HueSaturationValue
+                hue_shift_limit:
+                  - -5
+                  - 5
+                sat_shift_limit:
+                  - -10
+                  - 10
+                val_shift_limit:
+                  - -15
+                  - 15
+                p: 1.0
+          - __class_fullname__: GaussianBlur
+            blur_limit:
+              - 3
+              - 7
+            p: 0.2
           - __class_fullname__: Normalize
             max_pixel_value: 255.0
             mean:
@@ -105,18 +134,18 @@ trainer:
       init_args:
         entity: sebdalgarno-poisson-consulting
         project: seagrass-rgb
-        name: unetpp_resnet34_minimal_aug
+        name: unetpp_resnet34_light_aug
         group: baseline_comparison
         log_model: true
         tags:
           - seagrass
           - baseline_comparison
-          - minimal_aug
+          - light_aug
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
         auto_insert_metric_name: False
-        filename: seagrass_rgb_unetpp_resnet34_minimal_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        filename: seagrass_rgb_unetpp_resnet34_light_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
         monitor: val/iou_epoch
         mode: max
         save_last: True
