@@ -10,7 +10,7 @@ model:
       in_channels: 3
     num_classes: 2
     ignore_index: &ignore_index -100
-    lr: 3e-4
+    lr: 1e-4
     wd: 0.01
     b1: 0.9
     b2: 0.95
@@ -26,10 +26,10 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips/test"
-    batch_size: 32
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/test"
+    batch_size: 64
     num_workers: 16
     pin_memory: true
     persistent_workers: true
@@ -124,9 +124,10 @@ trainer:
   devices: auto
   precision: bf16-mixed
   log_every_n_steps: 20
-  max_epochs: 2
-  accumulate_grad_batches: 2
-  gradient_clip_val: 0.5
+  max_epochs: 200
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  check_val_every_n_epoch: 2
   detect_anomaly: false
   default_root_dir: checkpoints
   fast_dev_run: False
@@ -156,7 +157,7 @@ trainer:
       init_args:
         monitor: val/iou_epoch
         mode: max
-        patience: 10
+        patience: 20
     - class_path: lightning.pytorch.callbacks.LearningRateMonitor
       init_args:
         logging_interval: step
