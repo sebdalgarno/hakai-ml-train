@@ -1,0 +1,292 @@
+seed_everything: 42
+
+model:
+  class_path: "src.models.smp.SMPMulticlassSegmentationModel"
+  init_args:
+    architecture: "UnetPlusPlus"
+    backbone: "resnet34"
+    model_opts:
+      encoder_weights: imagenet
+      in_channels: 3
+    num_classes: 2
+    ignore_index: &ignore_index -100
+    lr: 1e-4
+    wd: 0.01
+    b1: 0.9
+    b2: 0.95
+    loss: "LovaszLoss"
+    loss_opts:
+      mode: "multiclass"
+      ignore_index: *ignore_index
+      from_logits: true
+    class_names:
+      - bg
+      - seagrass
+
+data:
+  class_path: "src.data.DataModule"
+  init_args:
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/test"
+    batch_size: 64
+    num_workers: 16
+    pin_memory: true
+    persistent_workers: true
+    train_transforms:
+      __version__: 2.0.9
+      transform:
+        __class_fullname__: Compose
+        additional_targets: {}
+        bbox_params: null
+        is_check_shapes: true
+        keypoint_params: null
+        p: 1
+        seed: null
+        transforms:
+          # =========================================================
+          # 1. GEOMETRIC TRANSFORMS
+          # =========================================================
+          # D4: All 8 symmetries (flips + 90° rotations)
+          - __class_fullname__: D4
+            p: 1.0
+          # RandomResizedCrop: Simulate flying lower (zoom in)
+          - __class_fullname__: RandomResizedCrop
+            height: 512
+            width: 512
+            scale:
+              - 0.5
+              - 1.0
+            ratio:
+              - 0.9
+              - 1.1
+            p: 0.5
+          # Affine: Rotation + translation + scale
+          - __class_fullname__: Affine
+            rotate:
+              - -30.0
+              - 30.0
+            scale:
+              x:
+                - 0.75
+                - 1.25
+              y:
+                - 0.75
+                - 1.25
+            shear:
+              x:
+                - 0.0
+                - 0.0
+              y:
+                - 0.0
+                - 0.0
+            translate_percent:
+              x:
+                - -0.1
+                - 0.1
+              y:
+                - -0.1
+                - 0.1
+            translate_px: null
+            interpolation: 1
+            mask_interpolation: 0
+            border_mode: 0
+            fill: 0.0
+            fill_mask: 0.0
+            keep_ratio: true
+            fit_output: false
+            p: 0.5
+          # =========================================================
+          # 2. COLOR & LIGHTING TRANSFORMS
+          # =========================================================
+          # Color variation: brightness, contrast, hue, saturation
+          - __class_fullname__: OneOf
+            p: 0.5
+            transforms:
+              - __class_fullname__: RandomBrightnessContrast
+                brightness_limit:
+                  - -0.15
+                  - 0.15
+                contrast_limit:
+                  - -0.15
+                  - 0.15
+                p: 1.0
+              - __class_fullname__: HueSaturationValue
+                hue_shift_limit:
+                  - -15.0
+                  - 15.0
+                sat_shift_limit:
+                  - -20.0
+                  - 20.0
+                val_shift_limit:
+                  - -20.0
+                  - 20.0
+                p: 1.0
+          # Depth simulation: red channel attenuation
+          - __class_fullname__: OneOf
+            p: 0.3
+            transforms:
+              - __class_fullname__: RGBShift
+                r_shift_limit:
+                  - -20
+                  - 0
+                g_shift_limit:
+                  - -10
+                  - 10
+                b_shift_limit:
+                  - -10
+                  - 10
+                p: 1.0
+              - __class_fullname__: RandomGamma
+                gamma_limit:
+                  - 80
+                  - 120
+                p: 1.0
+          # =========================================================
+          # 3. TURBIDITY & CLARITY TRANSFORMS
+          # =========================================================
+          - __class_fullname__: OneOf
+            p: 0.3
+            transforms:
+              - __class_fullname__: CLAHE
+                clip_limit:
+                  - 1.0
+                  - 3.0
+                tile_grid_size:
+                  - 8
+                  - 8
+                p: 1.0
+              - __class_fullname__: GaussianBlur
+                blur_limit:
+                  - 3
+                  - 7
+                p: 1.0
+              - __class_fullname__: GaussNoise
+                std_range:
+                  - 0.02
+                  - 0.05
+                mean_range:
+                  - 0.0
+                  - 0.0
+                p: 1.0
+          # =========================================================
+          # 4. DISTORTION & REGULARIZATION
+          # =========================================================
+          # Surface distortion (waves/ripples)
+          - __class_fullname__: OneOf
+            p: 0.2
+            transforms:
+              - __class_fullname__: ElasticTransform
+                alpha: 80
+                sigma: 6
+                p: 1.0
+              - __class_fullname__: GridDistortion
+                num_steps: 5
+                distort_limit:
+                  - -0.2
+                  - 0.2
+                p: 1.0
+          # CoarseDropout: Forces connectivity learning
+          - __class_fullname__: CoarseDropout
+            num_holes_range:
+              - 2
+              - 6
+            hole_height_range:
+              - 16
+              - 32
+            hole_width_range:
+              - 16
+              - 32
+            fill: 0.0
+            p: 0.2
+          # =========================================================
+          # 5. NORMALIZATION
+          # =========================================================
+          - __class_fullname__: Normalize
+            max_pixel_value: 255.0
+            mean:
+              - 0.485
+              - 0.456
+              - 0.406
+            normalization: standard
+            p: 1.0
+            std:
+              - 0.229
+              - 0.224
+              - 0.225
+          - __class_fullname__: ToTensorV2
+            p: 1.0
+            transpose_mask: false
+    test_transforms:
+      __version__: 2.0.9
+      transform:
+        __class_fullname__: Compose
+        additional_targets: {}
+        bbox_params: null
+        is_check_shapes: true
+        keypoint_params: null
+        p: 1
+        seed: null
+        transforms:
+          - __class_fullname__: Normalize
+            max_pixel_value: 255.0
+            mean:
+              - 0.485
+              - 0.456
+              - 0.406
+            normalization: standard
+            p: 1.0
+            std:
+              - 0.229
+              - 0.224
+              - 0.225
+          - __class_fullname__: ToTensorV2
+            p: 1.0
+            transpose_mask: false
+
+trainer:
+  accelerator: auto
+  devices: auto
+  precision: bf16-mixed
+  log_every_n_steps: 20
+  max_epochs: 100
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  check_val_every_n_epoch: 1
+  detect_anomaly: false
+  default_root_dir: checkpoints
+  fast_dev_run: False
+  logger:
+    - class_path: lightning.pytorch.loggers.WandbLogger
+      init_args:
+        entity: sebdalgarno-poisson-consulting
+        project: seagrass-rgb
+        name: unetpp_resnet34_full_aug
+        group: augmentation-experiment
+        log_model: true
+        tags:
+          - seagrass
+          - augmentation-experiment
+          - full_aug
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        auto_insert_metric_name: False
+        filename: unetpp_resnet34_full_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        monitor: val/iou_epoch
+        mode: max
+        save_last: True
+        save_top_k: 2
+        save_weights_only: True
+        verbose: True
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        monitor: val/iou_epoch
+        mode: max
+        patience: 20
+        min_delta: 0.002
+    - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+  plugins:
+    - class_path: lightning.pytorch.plugins.io.AsyncCheckpointIO
