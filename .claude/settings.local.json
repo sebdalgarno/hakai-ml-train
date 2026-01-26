@@ -18,7 +18,9 @@
       "Bash(do echo '=== $f ===')",
       "Bash(gdalinfo:*)",
       "Bash(done)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(xargs:*)"
     ]
   }
 }
