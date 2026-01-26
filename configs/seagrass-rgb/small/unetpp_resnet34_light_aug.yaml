@@ -144,9 +144,8 @@ trainer:
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
-        dirpath: checkpoints/small/unetpp_resnet34_light_aug
         auto_insert_metric_name: False
-        filename: epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        filename: small_unetpp_resnet34_light_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
         monitor: val/iou_epoch
         mode: max
         save_last: True

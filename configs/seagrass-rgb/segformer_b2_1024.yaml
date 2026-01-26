@@ -146,9 +146,8 @@ trainer:
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
-        dirpath: checkpoints/segformer_b2_1024
         auto_insert_metric_name: False
-        filename: epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        filename: seagrass_rgb_segformer_b2_1024_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
         monitor: val/iou_epoch
         mode: max
         save_last: True
