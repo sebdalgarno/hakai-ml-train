@@ -151,6 +151,53 @@ def extract_ortho_from_filename(filename: str) -> str:
     return filename.replace(".npz", "")
 
 
+def compute_global_metrics(
+    preds: np.ndarray,
+    labels: np.ndarray,
+    target_class: int = 1,
+    ignore_index: int = -100,
+) -> dict[str, float]:
+    """Compute global/micro-averaged metrics (matches torchmetrics behavior).
+
+    This accumulates TP/FP/FN across all samples before computing metrics,
+    which is how torchmetrics computes IoU during training.
+    """
+    mask = labels != ignore_index
+
+    pred_positive = (preds == target_class) & mask
+    label_positive = (labels == target_class) & mask
+
+    tp = (pred_positive & label_positive).sum()
+    fp = (pred_positive & ~label_positive).sum()
+    fn = (~pred_positive & label_positive).sum()
+
+    # IoU = TP / (TP + FP + FN)
+    union = tp + fp + fn
+    iou = tp / union if union > 0 else 1.0
+
+    # Precision = TP / (TP + FP)
+    pred_total = tp + fp
+    precision = tp / pred_total if pred_total > 0 else 1.0
+
+    # Recall = TP / (TP + FN)
+    label_total = tp + fn
+    recall = tp / label_total if label_total > 0 else 1.0
+
+    # F1
+    f1 = (
+        2 * precision * recall / (precision + recall)
+        if (precision + recall) > 0
+        else 0.0
+    )
+
+    return {
+        "iou": float(iou),
+        "precision": float(precision),
+        "recall": float(recall),
+        "f1": float(f1),
+    }
+
+
 def compute_per_ortho_metrics(
     filenames: list[str],
     metrics_per_sample: list[dict[str, float]],

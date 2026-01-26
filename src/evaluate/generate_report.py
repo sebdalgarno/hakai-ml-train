@@ -18,6 +18,7 @@ from tqdm import tqdm
 from src.data import NpzSegmentationDataset
 from src.evaluate.metrics import (
     compute_confusion_matrix,
+    compute_global_metrics,
     compute_per_ortho_metrics,
     compute_per_sample_metrics,
     compute_pr_curve,
@@ -158,17 +159,28 @@ def compute_all_metrics(
     # Per-ortho metrics
     ortho_metrics = compute_per_ortho_metrics(filenames, sample_metrics)
 
-    # F1 score
+    # Global metrics (matches torchmetrics/W&B)
+    global_metrics = compute_global_metrics(
+        preds, labels, target_class=target_class, ignore_index=ignore_index
+    )
+
+    # Per-sample averaged metrics (macro)
     mean_precision = np.mean(precisions)
     mean_recall = np.mean(recalls)
-    f1 = 2 * mean_precision * mean_recall / (mean_precision + mean_recall + 1e-10)
+    macro_f1 = 2 * mean_precision * mean_recall / (mean_precision + mean_recall + 1e-10)
 
     return {
         "sample_metrics": sample_metrics,
-        "mean_iou": np.mean(ious),
-        "mean_precision": mean_precision,
-        "mean_recall": mean_recall,
-        "mean_f1": f1,
+        # Global metrics (micro-averaged, matches W&B)
+        "global_iou": global_metrics["iou"],
+        "global_precision": global_metrics["precision"],
+        "global_recall": global_metrics["recall"],
+        "global_f1": global_metrics["f1"],
+        # Per-sample averaged metrics (macro)
+        "macro_iou": np.mean(ious),
+        "macro_precision": mean_precision,
+        "macro_recall": mean_recall,
+        "macro_f1": macro_f1,
         "confusion_matrix": cm,
         "pr_curve": {
             "precisions": pr_precisions,
@@ -212,27 +224,46 @@ def create_summary_page(
     )
 
     # Metrics table
-    ax_table = fig.add_axes([0.1, 0.25, 0.8, 0.4])
+    ax_table = fig.add_axes([0.1, 0.2, 0.8, 0.45])
     ax_table.axis("off")
 
     metrics_data = [
-        ["Metric", "Validation", "Test"],
-        ["IoU", f"{val_metrics['mean_iou']:.4f}", f"{test_metrics['mean_iou']:.4f}"],
+        ["Metric", "Validation", "Test", "Notes"],
         [
-            "Precision",
-            f"{val_metrics['mean_precision']:.4f}",
-            f"{test_metrics['mean_precision']:.4f}",
+            "IoU (Global)",
+            f"{val_metrics['global_iou']:.4f}",
+            f"{test_metrics['global_iou']:.4f}",
+            "Matches W&B",
         ],
         [
-            "Recall",
-            f"{val_metrics['mean_recall']:.4f}",
-            f"{test_metrics['mean_recall']:.4f}",
+            "Precision (Global)",
+            f"{val_metrics['global_precision']:.4f}",
+            f"{test_metrics['global_precision']:.4f}",
+            "",
         ],
-        ["F1", f"{val_metrics['mean_f1']:.4f}", f"{test_metrics['mean_f1']:.4f}"],
+        [
+            "Recall (Global)",
+            f"{val_metrics['global_recall']:.4f}",
+            f"{test_metrics['global_recall']:.4f}",
+            "",
+        ],
+        [
+            "F1 (Global)",
+            f"{val_metrics['global_f1']:.4f}",
+            f"{test_metrics['global_f1']:.4f}",
+            "",
+        ],
+        [
+            "IoU (Per-tile avg)",
+            f"{val_metrics['macro_iou']:.4f}",
+            f"{test_metrics['macro_iou']:.4f}",
+            "Macro average",
+        ],
         [
             "AUPRC",
             f"{val_metrics['pr_curve']['auprc']:.4f}",
             f"{test_metrics['pr_curve']['auprc']:.4f}",
+            "",
         ],
     ]
 
@@ -240,14 +271,14 @@ def create_summary_page(
         cellText=metrics_data,
         loc="center",
         cellLoc="center",
-        colWidths=[0.3, 0.25, 0.25],
+        colWidths=[0.28, 0.18, 0.18, 0.22],
     )
     table.auto_set_font_size(False)
-    table.set_fontsize(12)
-    table.scale(1.2, 2)
+    table.set_fontsize(11)
+    table.scale(1.2, 1.8)
 
     # Style header row
-    for i in range(3):
+    for i in range(4):
         table[(0, i)].set_facecolor("#4472C4")
         table[(0, i)].set_text_props(color="white", fontweight="bold")
 
