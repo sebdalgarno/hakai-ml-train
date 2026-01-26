@@ -3,8 +3,8 @@ seed_everything: 42
 model:
   class_path: "src.models.smp.SMPMulticlassSegmentationModel"
   init_args:
-    architecture: "UnetPlusPlus"
-    backbone: "resnet34"
+    architecture: "Segformer"
+    backbone: "mit_b2"
     model_opts:
       encoder_weights: imagenet
       in_channels: 3
@@ -26,10 +26,10 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/prototype_small/chips_512/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/prototype_small/chips_512/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/prototype_small/chips_512/test"
-    batch_size: 64
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/test"
+    batch_size: 4
     num_workers: 16
     pin_memory: true
     persistent_workers: true
@@ -46,35 +46,6 @@ data:
         transforms:
           - __class_fullname__: D4
             p: 1.0
-          - __class_fullname__: OneOf
-            p: 0.5
-            transforms:
-              - __class_fullname__: RandomBrightnessContrast
-                brightness_by_max: true
-                brightness_limit:
-                  - -0.1
-                  - 0.1
-                contrast_limit:
-                  - -0.1
-                  - 0.1
-                ensure_safe_range: false
-                p: 1.0
-              - __class_fullname__: HueSaturationValue
-                hue_shift_limit:
-                  - -5
-                  - 5
-                sat_shift_limit:
-                  - -10
-                  - 10
-                val_shift_limit:
-                  - -15
-                  - 15
-                p: 1.0
-          - __class_fullname__: GaussianBlur
-            blur_limit:
-              - 3
-              - 7
-            p: 0.2
           - __class_fullname__: Normalize
             max_pixel_value: 255.0
             mean:
@@ -123,7 +94,7 @@ trainer:
   precision: bf16-mixed
   log_every_n_steps: 20
   max_epochs: 200
-  accumulate_grad_batches: 1
+  accumulate_grad_batches: 4
   gradient_clip_val: 1.0
   check_val_every_n_epoch: 1
   detect_anomaly: false
@@ -134,18 +105,20 @@ trainer:
       init_args:
         entity: sebdalgarno-poisson-consulting
         project: seagrass-rgb
-        name: small_unetpp_resnet34_light_aug
-        group: small_prototype
+        name: segformer_mitb2_1024
+        group: architecture-experiment
         log_model: true
         tags:
           - seagrass
-          - small_prototype
-          - light_aug
+          - architecture-experiment
+          - segformer
+          - mit_b2
+          - 1024
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
         auto_insert_metric_name: False
-        filename: small_unetpp_resnet34_light_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        filename: segformer_mitb2_1024_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
         monitor: val/iou_epoch
         mode: max
         save_last: True
