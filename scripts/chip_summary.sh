@@ -6,6 +6,7 @@ set -e
 # Usage:
 #   ./scripts/chip_summary.sh /path/to/chips
 #   ./scripts/chip_summary.sh /path/to/chips -o /path/to/output.pdf
+#   ./scripts/chip_summary.sh /mnt/class_data/sdalgarno/main/raw_data/chips_1024 -o ./outputs/chip_summary_prototype_1024.pdf
 
 if [ $# -lt 1 ]; then
     echo "Usage: $0 <chip_dir> [-o output.pdf]"
