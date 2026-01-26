@@ -3,11 +3,11 @@
 set -e
 
 # CONFIG -----
-CONFIG="configs/seagrass-rgb/unetpp_resnet34.yaml"
-CKPT="./seagrass-rgb/491ywzwx/checkpoints/last.ckpt"
+CONFIG="configs/seagrass-rgb/unetpp_resnet34_1024.yaml"
+CKPT="./seagrass-rgb/6rzxrcho/checkpoints/last.ckpt"
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_1024"
 OUTPUT_DIR="outputs"
 
 # PARAMETERS -----
