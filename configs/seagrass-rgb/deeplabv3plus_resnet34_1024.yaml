@@ -146,8 +146,9 @@ trainer:
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
+        dirpath: checkpoints/deeplabv3plus_resnet34_1024
         auto_insert_metric_name: False
-        filename: seagrass_rgb_deeplabv3plus_resnet34_1024_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        filename: epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
         monitor: val/iou_epoch
         mode: max
         save_last: True
