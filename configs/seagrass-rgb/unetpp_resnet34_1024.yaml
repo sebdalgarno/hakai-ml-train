@@ -10,7 +10,7 @@ model:
       in_channels: 3
     num_classes: 2
     ignore_index: &ignore_index -100
-    lr: 3e-4
+    lr: 1e-4
     wd: 0.01
     b1: 0.9
     b2: 0.95
@@ -29,7 +29,7 @@ data:
     train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/train"
     val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/val"
     test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/test"
-    batch_size: 8
+    batch_size: 12
     num_workers: 16
     pin_memory: true
     persistent_workers: true
@@ -46,37 +46,6 @@ data:
         transforms:
           - __class_fullname__: D4
             p: 1.0
-          - __class_fullname__: HueSaturationValue
-            hue_shift_limit:
-              - -15
-              - 15
-            sat_shift_limit:
-              - -25
-              - 25
-            val_shift_limit:
-              - -25
-              - 25
-            p: 0.6
-          - __class_fullname__: RandomBrightnessContrast
-            brightness_by_max: true
-            brightness_limit:
-              - -0.2
-              - 0.2
-            contrast_limit:
-              - -0.2
-              - 0.2
-            ensure_safe_range: false
-            p: 0.5
-          - __class_fullname__: RandomGamma
-            gamma_limit:
-              - 80
-              - 120
-            p: 0.3
-          - __class_fullname__: GaussianBlur
-            blur_limit:
-              - 3
-              - 7
-            p: 0.2
           - __class_fullname__: Normalize
             max_pixel_value: 255.0
             mean:
@@ -125,7 +94,7 @@ trainer:
   precision: bf16-mixed
   log_every_n_steps: 20
   max_epochs: 200
-  accumulate_grad_batches: 2
+  accumulate_grad_batches: 4
   gradient_clip_val: 0.5
   check_val_every_n_epoch: 1
   detect_anomaly: false
@@ -142,7 +111,6 @@ trainer:
         tags:
           - seagrass
           - architecture_comparison
-          - 1024
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
