@@ -26,9 +26,9 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/test"
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/test"
     batch_size: 48
     crop_size: 512
     num_workers: 16
@@ -95,7 +95,7 @@ trainer:
   precision: bf16-mixed
   log_every_n_steps: 20
   max_epochs: 200
-  accumulate_grad_batches: 2
+  accumulate_grad_batches: 1
   gradient_clip_val: 0.5
   check_val_every_n_epoch: 1
   detect_anomaly: false

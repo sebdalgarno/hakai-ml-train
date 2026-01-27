@@ -26,9 +26,9 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/test"
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/test"
     batch_size: 12
     num_workers: 16
     pin_memory: true
@@ -113,7 +113,6 @@ trainer:
           - architecture-experiment
           - unetpp
           - resnet34
-          - 1024
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
