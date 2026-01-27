@@ -20,7 +20,8 @@
       "Bash(done)",
       "Bash(ls:*)",
       "Bash(grep:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "WebFetch(domain:www.sciencedirect.com)"
     ]
   }
 }

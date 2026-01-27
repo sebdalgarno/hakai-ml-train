@@ -420,3 +420,166 @@ Note: Split A includes additional condition coverage in training from Sharp (ove
 7.  **Balanced val/test chip distribution**: No single site exceeds 40% of its split, ensuring metrics reflect model performance across diverse conditions rather than one dominant site.
 
 8.  **Balanced difficulty across val/test**: Superstition (fog, sparse) moved to val so both splits contain challenging conditions. This ensures validation metrics predict test performance and hyperparameter tuning accounts for difficult cases.
+
+------------------------------------------------------------------------
+
+## Regional Cross-Validation Splits (3-Fold)
+
+Three-fold cross-validation holding out each region as test set. Used to evaluate model generalization across geographic regions.
+
+**Design principles:**
+- Each fold holds out one region (North, Central, South) as test
+- Remaining two regions split into train/val with ~82/18 ratio
+- Val set includes mix of difficulty levels and conditions
+- Train/val maintain diversity in quality, resolution, and conditions
+
+### CV_NORTH (North held out)
+
+**Test**: All 15 North sites (22,903 chips)
+
+| Site | Chips | Difficulty | Quality | Key Conditions |
+|------|-------|------------|---------|----------------|
+| Louscoone Head | 4,522 | M/L | E/G | Shadows |
+| Island Bay | 2,614 | L | G | — |
+| Kendrick Point | 2,322 | M/L | E | Bleaching |
+| Ramsay | 2,125 | L | G | — |
+| Bag Harbour | 1,852 | L | E | Excellent baseline |
+| Section Cove | 1,603 | M/L | E/G | Hazy lighting |
+| Swan Bay | 1,316 | L | E | Great conditions |
+| Beljay Bay | 1,116 | L | E | — |
+| Takelly Cove | 1,097 | — | G | — |
+| Balcolm Inlet | 1,010 | M | G | Cloudy |
+| Louscoone West | 867 | L | E | — |
+| Kendrick Point West | 691 | L | E | — |
+| Louscoone | 673 | M/L | E/G | Overcast |
+| Sedgwick | 634 | H/M | G/M | Overcast, cloud reflections |
+| Heater Harbour | 461 | M | G | Dark, low light |
+
+**Validation** (6 sites, ~11,600 chips, 17%):
+
+| Site | Chips | Region | Difficulty | Quality | Key Conditions |
+|------|-------|--------|------------|---------|----------------|
+| Superstition | 4,500 | Central | H/L | E/G/M | Sparse, fog, algae |
+| McMullin North | 4,437 | Central | L | E/G | Clear |
+| Auseth | 1,082 | South | L | E | Excellent baseline |
+| Triquet | 724 | Central | L | E | Clear baseline |
+| Beck | 577 | South | H | M | Shadows, sparse |
+| Bennett Bay | 310 | South | H | M | Cloudy, glint |
+
+**Training** (8 sites, ~55,900 chips, 83%):
+
+| Site | Chips | Region | Difficulty | Quality | Key Conditions |
+|------|-------|--------|------------|---------|----------------|
+| Koeye | 17,076 | Central | H/M/L | E/G/M | Tannins, turbidity, glint |
+| Goose SW | 10,642 | Central | H/M/L | E/G | Turbidity, overcast |
+| Pruth Bay | 9,509 | Central | M/L | E/G/M | Shadows, cloud reflections |
+| Grice Bay | 7,870 | South | H | G | Large sparse |
+| Choked Pass | 4,832 | Central | L | G | Good all round |
+| Triquet Bay | 3,726 | Central | H/M | E/G/M | Difficult edge |
+| Calmus | 1,961 | South | L | E | — |
+| Arakun | 299 | South | L | G | — |
+
+### CV_CENTRAL (Central held out)
+
+**Test**: All 8 Central sites (55,446 chips)
+
+| Site | Chips | Difficulty | Quality | Key Conditions |
+|------|-------|------------|---------|----------------|
+| Koeye | 17,076 | H/M/L | E/G/M | Tannins, turbidity, glint |
+| Goose SW | 10,642 | H/M/L | E/G | Turbidity, overcast |
+| Pruth Bay | 9,509 | M/L | E/G/M | Shadows, cloud reflections |
+| Choked Pass | 4,832 | L | G | Good all round |
+| Superstition | 4,500 | H/L | E/G/M | Sparse, fog, algae |
+| McMullin North | 4,437 | L | E/G | Clear |
+| Triquet Bay | 3,726 | H/M | E/G/M | Difficult edge |
+| Triquet | 724 | L | E | Clear baseline |
+
+**Validation** (6 sites, ~5,600 chips, 16%):
+
+| Site | Chips | Region | Difficulty | Quality | Key Conditions |
+|------|-------|--------|------------|---------|----------------|
+| Kendrick Point | 2,322 | North | M/L | E | Bleaching |
+| Auseth | 1,082 | South | L | E | Excellent baseline |
+| Louscoone | 673 | North | M/L | E/G | Overcast |
+| Sedgwick | 634 | North | H/M | G/M | Overcast, cloud reflections |
+| Beck | 577 | South | H | M | Shadows, sparse |
+| Bennett Bay | 310 | South | H | M | Cloudy, glint |
+
+**Training** (15 sites, ~29,400 chips, 84%):
+
+| Site | Chips | Region | Difficulty | Quality | Key Conditions |
+|------|-------|--------|------------|---------|----------------|
+| Grice Bay | 7,870 | South | H | G | Large sparse |
+| Louscoone Head | 4,522 | North | M/L | E/G | Shadows |
+| Island Bay | 2,614 | North | L | G | — |
+| Ramsay | 2,125 | North | L | G | — |
+| Calmus | 1,961 | South | L | E | — |
+| Bag Harbour | 1,852 | North | L | E | Excellent baseline |
+| Section Cove | 1,603 | North | M/L | E/G | Hazy lighting |
+| Swan Bay | 1,316 | North | L | E | Great conditions |
+| Beljay Bay | 1,116 | North | L | E | — |
+| Takelly Cove | 1,097 | North | — | G | — |
+| Balcolm Inlet | 1,010 | North | M | G | Cloudy |
+| Louscoone West | 867 | North | L | E | — |
+| Kendrick Point West | 691 | North | L | E | — |
+| Heater Harbour | 461 | North | M | G | Dark, low light |
+| Arakun | 299 | South | L | G | — |
+
+### CV_SOUTH (South held out)
+
+**Test**: All 6 South sites (12,099 chips)
+
+| Site | Chips | Difficulty | Quality | Key Conditions |
+|------|-------|------------|---------|----------------|
+| Grice Bay | 7,870 | H | G | Large sparse, coarse delineation |
+| Calmus | 1,961 | L | E | — |
+| Auseth | 1,082 | L | E | Excellent baseline |
+| Beck | 577 | H | M | Shadows, sparse |
+| Bennett Bay | 310 | H | M | Cloudy, glint |
+| Arakun | 299 | L | G | — |
+
+**Validation** (7 sites, ~14,200 chips, 18%):
+
+| Site | Chips | Region | Difficulty | Quality | Key Conditions |
+|------|-------|--------|------------|---------|----------------|
+| Superstition | 4,500 | Central | H/L | E/G/M | Sparse, fog, algae |
+| Triquet Bay | 3,726 | Central | H/M | E/G/M | Difficult edge |
+| Kendrick Point | 2,322 | North | M/L | E | Bleaching |
+| Section Cove | 1,603 | North | M/L | E/G | Hazy lighting |
+| Triquet | 724 | Central | L | E | Clear baseline |
+| Louscoone | 673 | North | M/L | E/G | Overcast |
+| Sedgwick | 634 | North | H/M | G/M | Overcast, cloud reflections |
+
+**Training** (16 sites, ~64,100 chips, 82%):
+
+| Site | Chips | Region | Difficulty | Quality | Key Conditions |
+|------|-------|--------|------------|---------|----------------|
+| Koeye | 17,076 | Central | H/M/L | E/G/M | Tannins, turbidity, glint |
+| Goose SW | 10,642 | Central | H/M/L | E/G | Turbidity, overcast |
+| Pruth Bay | 9,509 | Central | M/L | E/G/M | Shadows, cloud reflections |
+| Choked Pass | 4,832 | Central | L | G | Good all round |
+| Louscoone Head | 4,522 | North | M/L | E/G | Shadows |
+| McMullin North | 4,437 | Central | L | E/G | Clear |
+| Island Bay | 2,614 | North | L | G | — |
+| Ramsay | 2,125 | North | L | G | — |
+| Bag Harbour | 1,852 | North | L | E | Excellent baseline |
+| Swan Bay | 1,316 | North | L | E | Great conditions |
+| Beljay Bay | 1,116 | North | L | E | — |
+| Takelly Cove | 1,097 | North | — | G | — |
+| Balcolm Inlet | 1,010 | North | M | G | Cloudy |
+| Louscoone West | 867 | North | L | E | — |
+| Kendrick Point West | 691 | North | L | E | — |
+| Heater Harbour | 461 | North | M | G | Dark, low light |
+
+### Regional CV Summary
+
+| Fold | Test Region | Test Sites | Test Chips | Val Sites | Val Chips | Train Sites | Train Chips |
+|------|-------------|------------|------------|-----------|-----------|-------------|-------------|
+| CV_NORTH | North | 15 | 22,903 | 6 | ~11,600 | 8 | ~55,900 |
+| CV_CENTRAL | Central | 8 | 55,446 | 6 | ~5,600 | 15 | ~29,400 |
+| CV_SOUTH | South | 6 | 12,099 | 7 | ~14,200 | 16 | ~64,100 |
+
+**Notes:**
+- CV_CENTRAL has largest test set (Central has most chips due to multi-visit sites like Koeye)
+- Each val set includes mix of H/M/L difficulty and baseline sites
+- Train/val ratios within non-test data: ~82-84% train, 16-18% val
