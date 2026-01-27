@@ -89,22 +89,23 @@ def sample_chips(
     num_sites = len(chips_by_site)
 
     if chips_per_site is not None:
-        target_per_site = min(chips_per_site, min_chips)
+        target_per_site = chips_per_site
     elif fraction is not None:
         # Calculate target as fraction of total, divided equally among sites
         # e.g., 10% of 100,000 chips with 20 sites = 500 chips per site
         total_target = int(total_chips * fraction)
         target_per_site = max(1, total_target // num_sites)
-        # Cap at smallest site's count
-        target_per_site = min(target_per_site, min_chips)
     else:
         raise ValueError("Must specify either chips_per_site or fraction")
+
+    # Sites with fewer chips than target will contribute all their chips
+    expected_total = sum(min(target_per_site, count) for count in site_counts.values())
 
     print(f"Sites: {num_sites}")
     print(f"Total chips: {total_chips}")
     print(f"Chips per site range: {min_chips} - {max(site_counts.values())}")
-    print(f"Target chips per site: {target_per_site}")
-    print(f"Expected total sampled: {target_per_site * num_sites} ({100 * target_per_site * num_sites / total_chips:.1f}%)")
+    print(f"Target chips per site: {target_per_site} (smaller sites contribute all)")
+    print(f"Expected total sampled: {expected_total} ({100 * expected_total / total_chips:.1f}%)")
 
     sampled_counts = {}
     operation = shutil.copy2 if copy else shutil.move
