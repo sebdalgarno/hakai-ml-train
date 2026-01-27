@@ -9,6 +9,7 @@ free to experiment with other chip sizes as well.
 """
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -196,6 +197,12 @@ def main():
 
     parser.add_argument("--remap", "-r", type=int, nargs="+", default=[0, -100, 1, 2])
 
+    parser.add_argument(
+        "--parallel",
+        action="store_true",
+        help="Process train/val/test splits in parallel.",
+    )
+
     args = parser.parse_args()
 
     print(f"Creating dataset {Path(args.output_dir).name}")
@@ -205,17 +212,39 @@ def main():
         print(f"{i} -> {v}")
     print("All other values will be set to -100.")
 
-    for split in ["train", "val", "test"]:
-        process_split(
-            args.data_dir,
-            split,
-            args.output_dir,
-            args.size,
-            args.stride,
-            args.num_bands,
-            args.remap,
-            args.dtype,
-        )
+    splits = ["train", "val", "test"]
+
+    if args.parallel:
+        print("Processing splits in parallel...")
+        with ProcessPoolExecutor(max_workers=3) as executor:
+            futures = [
+                executor.submit(
+                    process_split,
+                    args.data_dir,
+                    split,
+                    args.output_dir,
+                    args.size,
+                    args.stride,
+                    args.num_bands,
+                    args.remap,
+                    args.dtype,
+                )
+                for split in splits
+            ]
+            for future in futures:
+                future.result()
+    else:
+        for split in splits:
+            process_split(
+                args.data_dir,
+                split,
+                args.output_dir,
+                args.size,
+                args.stride,
+                args.num_bands,
+                args.remap,
+                args.dtype,
+            )
 
 
 if __name__ == "__main__":

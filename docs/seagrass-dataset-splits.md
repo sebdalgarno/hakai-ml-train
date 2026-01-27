@@ -185,6 +185,21 @@ Use this split if 9 sites are unavailable (Goose Grass Bay, Jaques Jarvis, Nettl
 
 Note: Chip counts are after nodata removal. Largest sites (pruth_bay, grice_bay) moved to training to prevent single-site dominance in val/test metrics. Superstition swapped to val to balance difficulty across val/test
 
+### Resolution Coverage (Split B)
+
+| Bucket | Resolution Range | Sites at Each Resolution |
+|--------|------------------|--------------------------|
+| Train  | 2.0–5.6 cm | 2.0–3.0: Arakun, Calmus, Koeye, Pruth Bay, Ramsay, Swan Bay; 3.0–4.5: Goose SW, Grice Bay, Heater Harbour, Kendrick Point West, Louscoone Head, Louscoone West, Island Bay, Balcolm Inlet; 4.5–5.6: Beljay Bay, Choked Pass, Takelly Cove |
+| Val    | 1.6–5.2 cm | 1.6–3.0: Auseth, Superstition, Triquet; 4.0–5.2: Bennett Bay, Kendrick Point, Louscoone |
+| Test   | 2.3–5.0 cm | 2.3–3.0: McMullin North, Bag Harbour; 3.0–4.5: Triquet Bay, Section Cove, Sedgwick; 4.5–5.0: Beck |
+
+**Summary:**
+- **Train**: 2.0–5.6 cm (full range, 17 sites across 42 orthos)
+- **Val**: 1.6–5.2 cm (includes finest resolution via Superstition u0914 at 1.6 cm)
+- **Test**: 2.3–5.0 cm (moderate range, 6 sites)
+
+All buckets cover a broad range of ground sampling distances (GSD), ensuring the model sees varied spatial scales during training and is evaluated on representative resolutions.
+
 ------------------------------------------------------------------------
 
 ## Prototype Dataset (Split B)

@@ -49,8 +49,9 @@ data:
             p: 1.0
           # RandomResizedCrop: Simulate flying lower (zoom in)
           - __class_fullname__: RandomResizedCrop
-            height: 512
-            width: 512
+            size:
+              - 512
+              - 512
             scale:
               - 0.5
               - 1.0
