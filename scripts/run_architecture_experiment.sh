@@ -3,14 +3,15 @@
 set -e
 
 # CONFIG DIR -----
-CONFIG_DIR="configs/architecture-experiment"
+CONFIG_DIR="configs/seagrass-rgb/architecture-experiment"
+
+#     "$CONFIG_DIR/unetpp_resnet34_512.yaml"
 
 # CONFIGS -----
 CONFIGS=(
-    "$CONFIG_DIR/unetpp_resnet34_512.yaml"
-    "$CONFIG_DIR/unetpp_resnet34_1024.yaml"
     "$CONFIG_DIR/segformer_mitb2_512.yaml"
     "$CONFIG_DIR/segformer_mitb2_1024.yaml"
+    "$CONFIG_DIR/unetpp_resnet34_1024.yaml"
 )
 
 # RUN -----

@@ -7,8 +7,8 @@ CONFIG="configs/seagrass-rgb/unetpp_resnet34_1024.yaml"
 CKPT="./seagrass-rgb/6rzxrcho/checkpoints/last.ckpt"
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips"
-OUTPUT_BASE="outputs"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_1024"
+OUTPUT_BASE="outputs/"
 
 # PARAMETERS -----
 CLASS_NAMES="bg seagrass"
