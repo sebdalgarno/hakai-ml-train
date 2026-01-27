@@ -302,35 +302,38 @@ def main():
         ("test", args.eval_stride),
     ]
 
-    def run_split(split_name, stride):
-        return split_name, process_split(
-            data_dir=args.data_dir,
-            split=split_name,
-            output_dir=args.output_dir,
-            prototype_output=args.prototype_output,
-            chip_size=args.size,
-            chip_stride=stride,
-            num_bands=args.num_bands,
-            band_remapping=tuple(args.remap),
-            dtype=dtype,
-            prototype_fraction=args.prototype_fraction,
-            seed=args.seed,
-        )
+    # Common kwargs for process_split
+    common_kwargs = {
+        "data_dir": args.data_dir,
+        "output_dir": args.output_dir,
+        "prototype_output": args.prototype_output,
+        "chip_size": args.size,
+        "num_bands": args.num_bands,
+        "band_remapping": tuple(args.remap),
+        "dtype": dtype,
+        "prototype_fraction": args.prototype_fraction,
+        "seed": args.seed,
+    }
 
     if args.parallel:
         print("\nProcessing splits in parallel...")
         with ProcessPoolExecutor(max_workers=3) as executor:
-            futures = [
-                executor.submit(run_split, split, stride)
+            futures = {
+                executor.submit(
+                    process_split, split=split, chip_stride=stride, **common_kwargs
+                ): split
                 for split, stride in splits_config
-            ]
+            }
             for future in futures:
-                split_name, (main_count, proto_count) = future.result()
+                split_name = futures[future]
+                main_count, proto_count = future.result()
                 summary["main"][split_name] = main_count
                 summary["prototype"][split_name] = proto_count
     else:
         for split, stride in splits_config:
-            _, (main_count, proto_count) = run_split(split, stride)
+            main_count, proto_count = process_split(
+                split=split, chip_stride=stride, **common_kwargs
+            )
             summary["main"][split] = main_count
             summary["prototype"][split] = proto_count
 
