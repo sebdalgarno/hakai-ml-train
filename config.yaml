@@ -9,7 +9,7 @@ trainer:
   logger:
   - class_path: lightning.pytorch.loggers.WandbLogger
     init_args:
-      name: unetpp_resnet34_1024_light_aug
+      name: segformer_mitb2_512
       save_dir: .
       version: null
       offline: false
@@ -26,13 +26,14 @@ trainer:
       notes: null
       tags:
       - seagrass
-      - architecture_comparison
-      - light_aug
+      - architecture-experiment
+      - segformer
+      - mit_b2
       config: null
       config_exclude_keys: null
       config_include_keys: null
       allow_val_change: null
-      group: architecture_comparison
+      group: architecture-experiment
       job_type: null
       mode: null
       force: null
@@ -49,7 +50,7 @@ trainer:
   - class_path: lightning.pytorch.callbacks.ModelCheckpoint
     init_args:
       dirpath: null
-      filename: seagrass_rgb_unetpp_resnet34_1024_light_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+      filename: segformer_mitb2_512_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
       monitor: val/iou_epoch
       verbose: true
       save_last: true
@@ -99,7 +100,7 @@ trainer:
   enable_checkpointing: null
   enable_progress_bar: null
   enable_model_summary: null
-  accumulate_grad_batches: 4
+  accumulate_grad_batches: 2
   gradient_clip_val: 0.5
   gradient_clip_algorithm: null
   deterministic: null
@@ -124,8 +125,8 @@ model:
     class_names:
     - bg
     - seagrass
-    architecture: UnetPlusPlus
-    backbone: resnet34
+    architecture: Segformer
+    backbone: mit_b2
     model_opts:
       encoder_weights: imagenet
       in_channels: 3
@@ -147,10 +148,10 @@ model:
 data:
   class_path: src.data.DataModule
   init_args:
-    train_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_1024/train
-    val_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_1024/val
-    test_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_1024/test
-    batch_size: 12
+    train_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_512/train
+    val_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_512/val
+    test_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_512/test
+    batch_size: 48
     num_workers: 16
     pin_memory: true
     persistent_workers: true
@@ -167,35 +168,6 @@ data:
         transforms:
         - __class_fullname__: D4
           p: 1.0
-        - __class_fullname__: OneOf
-          p: 0.5
-          transforms:
-          - __class_fullname__: RandomBrightnessContrast
-            brightness_by_max: true
-            brightness_limit:
-            - -0.1
-            - 0.1
-            contrast_limit:
-            - -0.1
-            - 0.1
-            ensure_safe_range: false
-            p: 1.0
-          - __class_fullname__: HueSaturationValue
-            hue_shift_limit:
-            - -5
-            - 5
-            sat_shift_limit:
-            - -10
-            - 10
-            val_shift_limit:
-            - -15
-            - 15
-            p: 1.0
-        - __class_fullname__: GaussianBlur
-          blur_limit:
-          - 3
-          - 7
-          p: 0.2
         - __class_fullname__: Normalize
           max_pixel_value: 255.0
           mean:

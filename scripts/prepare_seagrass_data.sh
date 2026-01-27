@@ -10,19 +10,19 @@ set -e
 
 # DIRECTORIES -----
 RAW_DIR="/mnt/class_data/sdalgarno/main/raw_data"
-MAIN_CHIP_DIR="/mnt/class_data/sdalgarno/main/chips_512"
-PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_512"
+MAIN_CHIP_DIR="/mnt/class_data/sdalgarno/main/chips_1024"
+PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_15/chips_1024"
 
 # CHIP PARAMETERS -----
-CHIP_SIZE=512
-TRAIN_STRIDE=384  # 25% overlap
-EVAL_STRIDE=512    # No overlap
+CHIP_SIZE=1024
+TRAIN_STRIDE=1024  # 25% overlap
+EVAL_STRIDE=1024    # No overlap
 NUM_BANDS=3
 DTYPE="uint8"
 REMAP="0 -100 1"
 
 # PROTOTYPE SAMPLING -----
-PROTOTYPE_FRACTION=0.10  # Fraction applied to smallest site, then sampled equally from all
+PROTOTYPE_FRACTION=0.15  # Fraction applied to smallest site, then sampled equally from all
 SEED=42
 
 # Step 1: Create all chips -----
