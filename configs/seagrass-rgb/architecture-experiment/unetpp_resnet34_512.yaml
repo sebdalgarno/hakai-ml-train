@@ -26,10 +26,11 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_512/test"
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/test"
     batch_size: 64
+    crop_size: 512
     num_workers: 16
     pin_memory: true
     persistent_workers: true
