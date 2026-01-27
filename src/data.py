@@ -57,6 +57,7 @@ class DataModule(pl.LightningDataModule):
         persistent_workers: bool = False,
         train_transforms: Any | None = None,
         test_transforms: Any | None = None,
+        crop_size: int | None = None,
     ):
         super().__init__()
         self.train_data_dir = train_chip_dir
@@ -67,9 +68,20 @@ class DataModule(pl.LightningDataModule):
         self.num_workers = num_workers
         self.pin_memory = pin_memory
         self.persistent_workers = persistent_workers
+        self.crop_size = crop_size
 
-        self.train_trans = A.from_dict(train_transforms)
-        self.test_trans = A.from_dict(test_transforms)
+        train_trans = A.from_dict(train_transforms)
+        test_trans = A.from_dict(test_transforms)
+
+        # Prepend crop transforms if crop_size is specified
+        if crop_size is not None:
+            train_crop = A.RandomCrop(height=crop_size, width=crop_size)
+            eval_crop = A.CenterCrop(height=crop_size, width=crop_size)
+            self.train_trans = A.Compose([train_crop, train_trans])
+            self.test_trans = A.Compose([eval_crop, test_trans])
+        else:
+            self.train_trans = train_trans
+            self.test_trans = test_trans
 
         self.ds_train, self.ds_val, self.ds_test = None, None, None
 
