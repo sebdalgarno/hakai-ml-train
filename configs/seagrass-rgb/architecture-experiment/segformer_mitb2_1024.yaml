@@ -29,7 +29,7 @@ data:
     train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/train"
     val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/val"
     test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips_1024/test"
-    batch_size: 4
+    batch_size: 7
     num_workers: 16
     pin_memory: true
     persistent_workers: true
@@ -95,7 +95,7 @@ trainer:
   log_every_n_steps: 20
   max_epochs: 200
   accumulate_grad_batches: 4
-  gradient_clip_val: 1.0
+  gradient_clip_val: 0.5
   check_val_every_n_epoch: 1
   detect_anomaly: false
   default_root_dir: checkpoints
@@ -113,7 +113,6 @@ trainer:
           - architecture-experiment
           - segformer
           - mit_b2
-          - 1024
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
