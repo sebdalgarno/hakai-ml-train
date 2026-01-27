@@ -6,6 +6,7 @@ and optionally creates a prototype dataset with proportional per-site sampling.
 
 import argparse
 import random
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -267,6 +268,11 @@ def main():
         default=42,
         help="Random seed for reproducible sampling (default: 42).",
     )
+    parser.add_argument(
+        "--parallel",
+        action="store_true",
+        help="Process train/val/test splits in parallel.",
+    )
     args = parser.parse_args()
 
     dtype = np.dtype(args.dtype)
@@ -290,12 +296,16 @@ def main():
 
     summary = {"main": {}, "prototype": {}}
 
-    for split in ["train", "val", "test"]:
-        stride = args.train_stride if split == "train" else args.eval_stride
+    splits_config = [
+        ("train", args.train_stride),
+        ("val", args.eval_stride),
+        ("test", args.eval_stride),
+    ]
 
-        main_count, proto_count = process_split(
+    def run_split(split_name, stride):
+        return split_name, process_split(
             data_dir=args.data_dir,
-            split=split,
+            split=split_name,
             output_dir=args.output_dir,
             prototype_output=args.prototype_output,
             chip_size=args.size,
@@ -306,8 +316,23 @@ def main():
             prototype_fraction=args.prototype_fraction,
             seed=args.seed,
         )
-        summary["main"][split] = main_count
-        summary["prototype"][split] = proto_count
+
+    if args.parallel:
+        print("\nProcessing splits in parallel...")
+        with ProcessPoolExecutor(max_workers=3) as executor:
+            futures = [
+                executor.submit(run_split, split, stride)
+                for split, stride in splits_config
+            ]
+            for future in futures:
+                split_name, (main_count, proto_count) = future.result()
+                summary["main"][split_name] = main_count
+                summary["prototype"][split_name] = proto_count
+    else:
+        for split, stride in splits_config:
+            _, (main_count, proto_count) = run_split(split, stride)
+            summary["main"][split] = main_count
+            summary["prototype"][split] = proto_count
 
     print("\n" + "=" * 50)
     print("SUMMARY")

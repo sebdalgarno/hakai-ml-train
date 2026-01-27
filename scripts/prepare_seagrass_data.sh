@@ -34,7 +34,8 @@ python -m src.prepare.make_chip_dataset_sampled "$RAW_DIR" "$MAIN_CHIP_DIR" \
     --num-bands "$NUM_BANDS" \
     --dtype "$DTYPE" \
     --remap $REMAP \
-    --seed "$SEED"
+    --seed "$SEED" \
+    --parallel
 # Note: No --prototype-output, so no sampling during chip creation
 
 # Step 2: Remove nodata tiles -----
