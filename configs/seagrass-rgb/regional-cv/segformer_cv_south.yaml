@@ -26,9 +26,9 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/cv_south/chips_1024/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/cv_south/chips_1024/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/cv_south/chips_1024/test"
+    train_chip_dir: "/mnt/class_data/sdalgarno/cv_south_sampled/chips_1024/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/cv_south_sampled/chips_1024/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/cv_south_sampled/chips_1024/test"
     batch_size: 6
     num_workers: 16
     pin_memory: true
