@@ -87,7 +87,7 @@ data:
                   - 360.0
                 blur_limit:
                   - 3
-                  - 7
+                  - 5
                 direction_range:
                   - -1.0
                   - 1.0
@@ -95,7 +95,7 @@ data:
               - __class_fullname__: MedianBlur
                 blur_limit:
                   - 3
-                  - 7
+                  - 5
                 p: 1.0
               - __class_fullname__: GaussianBlur
                 blur_limit:
@@ -103,8 +103,8 @@ data:
                   - 0
                 p: 1.0
                 sigma_limit:
-                  - 0.5
-                  - 3.0
+                  - 0.3
+                  - 1.5
           - __class_fullname__: Affine
             balanced_scale: false
             border_mode: 0
