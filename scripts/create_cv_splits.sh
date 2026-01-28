@@ -22,7 +22,7 @@ copy_sites() {
                 for f in "$SRC_DIR/$src_split/${site}_"*.npz; do
                     if [ -f "$f" ]; then
                         cp "$f" "$dst_dir/"
-                        ((count++))
+                        count=$((count + 1))
                     fi
                 done
             fi
