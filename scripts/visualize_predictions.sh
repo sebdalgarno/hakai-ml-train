@@ -3,8 +3,8 @@
 set -e
 
 # CONFIG -----
-CONFIG="configs/seagrass-rgb/unetpp_resnet34_1024.yaml"
-CKPT="./seagrass-rgb/6rzxrcho/checkpoints/last.ckpt"
+CONFIG="configs/seagrass-rgb/architecture-experiment/segformer_mitb2_1024.yaml"
+CKPT="/mnt/class_data/sdalgarno/checkpoints/architecture-experiment/segformer_mitb2_1024/last.ckpt"
 
 # DIRECTORIES -----
 CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_1024"
@@ -15,15 +15,15 @@ CLASS_NAMES="bg seagrass"
 N_SAMPLES=60
 THRESHOLD=0.5
 
-# EXTRACT RUN ID -----
-# Extract run ID from checkpoint path (e.g., "./seagrass-rgb/6rzxrcho/checkpoints/last.ckpt" -> "6rzxrcho")
-RUN_ID=$(echo "$CKPT" | sed -E 's|.*/([^/]+)/checkpoints/.*|\1|')
-OUTPUT_DIR="$OUTPUT_BASE/$RUN_ID"
+# EXTRACT MODEL NAME -----
+# Extract model name from checkpoint path (e.g., ".../architecture-experiment/segformer_mitb2_1024/last.ckpt" -> "segformer_mitb2_1024")
+MODEL_NAME=$(basename "$(dirname "$CKPT")")
+OUTPUT_DIR="$OUTPUT_BASE/$MODEL_NAME"
 
 # RUN -----
 mkdir -p "$OUTPUT_DIR"
 
-echo "Run ID: $RUN_ID"
+echo "Model: $MODEL_NAME"
 echo "Output directory: $OUTPUT_DIR"
 echo ""
 
