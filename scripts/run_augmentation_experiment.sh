@@ -1,5 +1,5 @@
 #!/bin/bash
-# Run augmentation experiment: systematic comparison of augmentation strategies
+# Run augmentation experiment: compare tiered augmentation strategies
 set -e
 
 # CONFIG DIR -----
@@ -7,22 +7,34 @@ CONFIG_DIR="configs/seagrass-rgb/augmentation-experiment"
 
 # CONFIGS (in order of increasing augmentation) -----
 CONFIGS=(
-    "$CONFIG_DIR/unetpp_resnet34_no_aug.yaml"
-    "$CONFIG_DIR/unetpp_resnet34_geometric_aug.yaml"
-    "$CONFIG_DIR/unetpp_resnet34_scale_aug.yaml"
-    "$CONFIG_DIR/unetpp_resnet34_full_aug.yaml"
+    "$CONFIG_DIR/segformer_default_aug.yaml"
+    "$CONFIG_DIR/segformer_scale_aug.yaml"
+    "$CONFIG_DIR/segformer_domain_aug.yaml"
 )
+
+# DEV VALIDATION -----
+echo "=============================================="
+echo "Dev Validation (fast_dev_run)"
+echo "=============================================="
+echo ""
+for config in "${CONFIGS[@]}"; do
+    echo "Validating: $(basename "$config")"
+    python trainer.py fit --config "$config" --trainer.fast_dev_run=true
+    echo "  OK"
+done
+echo ""
+echo "All configs validated successfully"
+echo ""
 
 # RUN -----
 echo "=============================================="
 echo "Augmentation Experiment"
 echo "=============================================="
 echo ""
-echo "Progression:"
-echo "  1. no_aug       → Normalize only"
-echo "  2. geometric    → D4 + Affine(rotate, translate)"
-echo "  3. scale        → D4 + Affine(+scale) + RandomResizedCrop"
-echo "  4. full         → Scale + color + turbidity + distortion + dropout"
+echo "Comparing augmentation tiers (SegFormer mit-b2, 1024 tiles):"
+echo "  1. default  → D4 + brightness/contrast + noise + blur"
+echo "  2. scale    → Default + affine scale (0.8-1.2)"
+echo "  3. domain   → Scale + CLAHE + HueSaturationValue"
 echo ""
 echo "Configs to run:"
 for config in "${CONFIGS[@]}"; do
