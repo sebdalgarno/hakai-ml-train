@@ -6,18 +6,11 @@ set -e
 CONFIG_DIR="configs/seagrass-rgb/architecture-experiment"
 
 # ALL CONFIGS (for dev validation) -----
-ALL_CONFIGS=(
+CONFIGS=(
     "$CONFIG_DIR/unetpp_resnet34_512.yaml"
     "$CONFIG_DIR/unetpp_resnet34_1024.yaml"
     "$CONFIG_DIR/segformer_mitb2_512.yaml"
     "$CONFIG_DIR/segformer_mitb2_1024.yaml"
-)
-
-# CONFIGS TO TRAIN -----
-CONFIGS=(
-    "$CONFIG_DIR/segformer_mitb2_512.yaml"
-    "$CONFIG_DIR/segformer_mitb2_1024.yaml"
-    "$CONFIG_DIR/unetpp_resnet34_1024.yaml"
 )
 
 # DEV VALIDATION -----
@@ -25,7 +18,7 @@ echo "=============================================="
 echo "Dev Validation (fast_dev_run)"
 echo "=============================================="
 echo ""
-for config in "${ALL_CONFIGS[@]}"; do
+for config in "${CONFIGS[@]}"; do
     echo "Validating: $(basename "$config")"
     python trainer.py fit --config "$config" --trainer.fast_dev_run=true
     echo "  OK"
