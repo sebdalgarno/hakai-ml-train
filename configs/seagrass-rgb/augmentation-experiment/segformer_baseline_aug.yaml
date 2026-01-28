@@ -46,65 +46,6 @@ data:
         transforms:
           - __class_fullname__: D4
             p: 1.0
-          - __class_fullname__: RandomBrightnessContrast
-            brightness_by_max: true
-            brightness_limit:
-              - -0.1
-              - 0.1
-            contrast_limit:
-              - -0.1
-              - 0.1
-            ensure_safe_range: false
-            p: 0.6
-          - __class_fullname__: OneOf
-            p: 0.4
-            transforms:
-              - __class_fullname__: GaussNoise
-                mean_range:
-                  - 0.0
-                  - 0.0
-                noise_scale_factor: 1.0
-                p: 1.0
-                per_channel: true
-                std_range:
-                  - 0.02
-                  - 0.044
-              - __class_fullname__: ISONoise
-                color_shift:
-                  - 0.01
-                  - 0.05
-                intensity:
-                  - 0.1
-                  - 0.2
-                p: 1.0
-          - __class_fullname__: OneOf
-            p: 0.4
-            transforms:
-              - __class_fullname__: MotionBlur
-                allow_shifted: true
-                angle_range:
-                  - 0.0
-                  - 360.0
-                blur_limit:
-                  - 3
-                  - 5
-                direction_range:
-                  - -1.0
-                  - 1.0
-                p: 1.0
-              - __class_fullname__: MedianBlur
-                blur_limit:
-                  - 3
-                  - 5
-                p: 1.0
-              - __class_fullname__: GaussianBlur
-                blur_limit:
-                  - 0
-                  - 0
-                p: 1.0
-                sigma_limit:
-                  - 0.3
-                  - 1.5
           - __class_fullname__: Normalize
             max_pixel_value: 255.0
             mean:
@@ -164,20 +105,20 @@ trainer:
       init_args:
         entity: sebdalgarno-poisson-consulting
         project: seagrass-rgb
-        name: segformer_default_aug
+        name: segformer_baseline_aug
         group: augmentation-experiment
         log_model: true
         tags:
           - seagrass
           - augmentation-experiment
           - segformer
-          - default-aug
+          - baseline-aug
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
         dirpath: /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment
         auto_insert_metric_name: False
-        filename: segformer_default_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        filename: segformer_baseline_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
         monitor: val/iou_epoch
         mode: max
         save_last: True
