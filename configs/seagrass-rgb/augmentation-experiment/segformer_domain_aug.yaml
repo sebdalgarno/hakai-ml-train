@@ -164,7 +164,7 @@ data:
             clip_limit:
               - 1.0
               - 4.0
-            p: 0.3
+            p: 0.2
             tile_grid_size:
               - 8
               - 8
