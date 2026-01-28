@@ -9,7 +9,7 @@ trainer:
   logger:
   - class_path: lightning.pytorch.loggers.WandbLogger
     init_args:
-      name: segformer_mitb2_512
+      name: segformer_domain_aug
       save_dir: .
       version: null
       offline: false
@@ -26,14 +26,14 @@ trainer:
       notes: null
       tags:
       - seagrass
-      - architecture-experiment
+      - augmentation-experiment
       - segformer
-      - mit_b2
+      - domain-aug
       config: null
       config_exclude_keys: null
       config_include_keys: null
       allow_val_change: null
-      group: architecture-experiment
+      group: augmentation-experiment
       job_type: null
       mode: null
       force: null
@@ -49,8 +49,8 @@ trainer:
   callbacks:
   - class_path: lightning.pytorch.callbacks.ModelCheckpoint
     init_args:
-      dirpath: null
-      filename: segformer_mitb2_512_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+      dirpath: /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment/domain
+      filename: segformer_domain_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
       monitor: val/iou_epoch
       verbose: true
       save_last: true
@@ -83,7 +83,7 @@ trainer:
       log_momentum: false
       log_weight_decay: false
   fast_dev_run: false
-  max_epochs: 200
+  max_epochs: 100
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -94,13 +94,13 @@ trainer:
   limit_predict_batches: null
   overfit_batches: 0.0
   val_check_interval: null
-  check_val_every_n_epoch: 1
+  check_val_every_n_epoch: 5
   num_sanity_val_steps: null
   log_every_n_steps: 20
   enable_checkpointing: null
   enable_progress_bar: null
   enable_model_summary: null
-  accumulate_grad_batches: 2
+  accumulate_grad_batches: 8
   gradient_clip_val: 0.5
   gradient_clip_algorithm: null
   deterministic: null
@@ -148,10 +148,10 @@ model:
 data:
   class_path: src.data.DataModule
   init_args:
-    train_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_512/train
-    val_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_512/val
-    test_chip_dir: /mnt/class_data/sdalgarno/prototype/chips_512/test
-    batch_size: 48
+    train_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/train
+    val_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/val
+    test_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/test
+    batch_size: 6
     num_workers: 16
     pin_memory: true
     persistent_workers: true
@@ -168,6 +168,139 @@ data:
         transforms:
         - __class_fullname__: D4
           p: 1.0
+        - __class_fullname__: RandomBrightnessContrast
+          brightness_by_max: true
+          brightness_limit:
+          - -0.1
+          - 0.1
+          contrast_limit:
+          - -0.1
+          - 0.1
+          ensure_safe_range: false
+          p: 0.6
+        - __class_fullname__: OneOf
+          p: 0.4
+          transforms:
+          - __class_fullname__: GaussNoise
+            mean_range:
+            - 0.0
+            - 0.0
+            noise_scale_factor: 1.0
+            p: 1.0
+            per_channel: true
+            std_range:
+            - 0.02
+            - 0.044
+          - __class_fullname__: ISONoise
+            color_shift:
+            - 0.01
+            - 0.05
+            intensity:
+            - 0.1
+            - 0.2
+            p: 1.0
+        - __class_fullname__: OneOf
+          p: 0.4
+          transforms:
+          - __class_fullname__: MotionBlur
+            allow_shifted: true
+            angle_range:
+            - 0.0
+            - 360.0
+            blur_limit:
+            - 3
+            - 5
+            direction_range:
+            - -1.0
+            - 1.0
+            p: 1.0
+          - __class_fullname__: MedianBlur
+            blur_limit:
+            - 3
+            - 5
+            p: 1.0
+          - __class_fullname__: GaussianBlur
+            blur_limit:
+            - 0
+            - 0
+            p: 1.0
+            sigma_limit:
+            - 0.3
+            - 1.5
+        - __class_fullname__: Affine
+          balanced_scale: false
+          border_mode: 0
+          fill: 0.0
+          fill_mask: 0.0
+          fit_output: false
+          interpolation: 1
+          keep_ratio: true
+          mask_interpolation: 0
+          p: 0.5
+          rotate:
+          - 0.0
+          - 0.0
+          rotate_method: largest_box
+          scale:
+            x:
+            - 0.7
+            - 1.3
+            y:
+            - 0.7
+            - 1.3
+          shear:
+            x:
+            - 0.0
+            - 0.0
+            y:
+            - 0.0
+            - 0.0
+          translate_percent:
+            x:
+            - 0.0
+            - 0.0
+            y:
+            - 0.0
+            - 0.0
+          translate_px: null
+        - __class_fullname__: OneOf
+          p: 0.3
+          transforms:
+          - __class_fullname__: GridDistortion
+            border_mode: 0
+            distort_limit:
+            - -0.15
+            - 0.15
+            interpolation: 1
+            mask_interpolation: 0
+            num_steps: 5
+            p: 1.0
+          - __class_fullname__: ElasticTransform
+            alpha: 50.0
+            border_mode: 0
+            interpolation: 1
+            mask_interpolation: 0
+            p: 1.0
+            sigma: 10.0
+        - __class_fullname__: CLAHE
+          clip_limit:
+          - 1.0
+          - 4.0
+          p: 0.2
+          tile_grid_size:
+          - 8
+          - 8
+        - __class_fullname__: HueSaturationValue
+          hue_shift_limit:
+          - -10.0
+          - 10.0
+          p: 0.5
+          sat_shift_limit:
+          - -15.0
+          - 15.0
+          val_shift_limit:
+          - -15.0
+          - 15.0
         - __class_fullname__: Normalize
           max_pixel_value: 255.0
           mean:
@@ -209,6 +342,7 @@ data:
         - __class_fullname__: ToTensorV2
           p: 1.0
           transpose_mask: false
+    crop_size: null
 optimizer: null
 lr_scheduler: null
 ckpt_path: null

@@ -11,7 +11,7 @@ set -e
 # DIRECTORIES -----
 RAW_DIR="/mnt/class_data/sdalgarno/main/raw_data"
 MAIN_CHIP_DIR="/mnt/class_data/sdalgarno/main/chips_1024"
-PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_15/chips_1024"
+PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024"
 
 # CHIP PARAMETERS -----
 CHIP_SIZE=1024
@@ -22,31 +22,31 @@ DTYPE="uint8"
 REMAP="0 -100 1"
 
 # PROTOTYPE SAMPLING -----
-PROTOTYPE_FRACTION=0.15  # Fraction applied to smallest site, then sampled equally from all
+PROTOTYPE_FRACTION=0.25  # Fraction applied to smallest site, then sampled equally from all
 SEED=42
 
-# Step 1: Create all chips -----
-echo "Step 1: Creating chips from orthos..."
-python -m src.prepare.make_chip_dataset_sampled "$RAW_DIR" "$MAIN_CHIP_DIR" \
-    --size "$CHIP_SIZE" \
-    --train-stride "$TRAIN_STRIDE" \
-    --eval-stride "$EVAL_STRIDE" \
-    --num-bands "$NUM_BANDS" \
-    --dtype "$DTYPE" \
-    --remap $REMAP \
-    --seed "$SEED" \
-    --parallel
-# Note: No --prototype-output, so no sampling during chip creation
+# # Step 1: Create all chips -----
+# echo "Step 1: Creating chips from orthos..."
+# python -m src.prepare.make_chip_dataset_sampled "$RAW_DIR" "$MAIN_CHIP_DIR" \
+#     --size "$CHIP_SIZE" \
+#     --train-stride "$TRAIN_STRIDE" \
+#     --eval-stride "$EVAL_STRIDE" \
+#     --num-bands "$NUM_BANDS" \
+#     --dtype "$DTYPE" \
+#     --remap $REMAP \
+#     --seed "$SEED" \
+#     --parallel
+# # Note: No --prototype-output, so no sampling during chip creation
 
-# Step 2: Remove nodata tiles -----
-echo ""
-echo "Step 2: Removing tiles with nodata areas..."
-for split in train val test; do
-    if [ -d "$MAIN_CHIP_DIR/$split" ]; then
-        echo "  Processing $split..."
-        python -m src.prepare.remove_tiles_with_nodata_areas "$MAIN_CHIP_DIR/$split" --num_channels "$NUM_BANDS"
-    fi
-done
+# # Step 2: Remove nodata tiles -----
+# echo ""
+# echo "Step 2: Removing tiles with nodata areas..."
+# for split in train val test; do
+#     if [ -d "$MAIN_CHIP_DIR/$split" ]; then
+#         echo "  Processing $split..."
+#         python -m src.prepare.remove_tiles_with_nodata_areas "$MAIN_CHIP_DIR/$split" --num_channels "$NUM_BANDS"
+#     fi
+# done
 
 # Step 3: Sample prototype by site -----
 echo ""
