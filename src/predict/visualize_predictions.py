@@ -49,7 +49,6 @@ def predict_chip(
     device: str = "cuda",
     num_classes: int = 2,
     threshold: float = 0.5,
-    return_probs: bool = False,
 ):
     """Run prediction on single chip."""
     augmented = transforms(image=image)
@@ -61,14 +60,11 @@ def predict_chip(
     if num_classes == 1:
         probs = torch.sigmoid(logits).squeeze(0).squeeze(0)
         pred = (probs > threshold).long()
-        target_probs = probs
     else:
         probs = torch.softmax(logits, dim=1).squeeze(0)
         target_probs = probs[1]  # Probability of class 1 (seagrass)
         pred = (target_probs > threshold).long()
 
-    if return_probs:
-        return pred.cpu().numpy(), target_probs.cpu().numpy()
     return pred.cpu().numpy()
 
 
@@ -84,7 +80,7 @@ def generate_prediction_pdf(
     device: str = "cuda",
     threshold: float = 0.5,
 ) -> None:
-    """Generate PDF with image | label | probability | prediction columns."""
+    """Generate PDF with image | label | prediction columns."""
     if class_names is None:
         class_names = ["bg", "class_1"]
 
@@ -110,25 +106,21 @@ def generate_prediction_pdf(
 
     with PdfPages(output_path) as pdf:
         for page in tqdm(range(n_pages), desc="Generating pages"):
-            fig, axes = plt.subplots(2, 2, figsize=(10, 10))
-            ax_img = axes[0, 0]
-            ax_label = axes[0, 1]
-            ax_prob = axes[1, 0]
-            ax_pred = axes[1, 1]
+            fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+            ax_img, ax_label, ax_pred = axes
 
             f = samples[page]
             data = np.load(f)
             image = data["image"]
             label = data["label"]
 
-            pred, probs = predict_chip(
+            pred = predict_chip(
                 model,
                 image,
                 transforms,
                 device,
                 num_classes,
                 threshold,
-                return_probs=True,
             )
 
             ax_img.imshow(image)
@@ -148,11 +140,6 @@ def generate_prediction_pdf(
             ax_label.set_title("Ground Truth", fontsize=10)
             ax_label.axis("off")
 
-            im = ax_prob.imshow(probs, cmap="coolwarm", vmin=0, vmax=1)
-            ax_prob.set_title(f"P({class_names[1]})", fontsize=10)
-            ax_prob.axis("off")
-            plt.colorbar(im, ax=ax_prob, fraction=0.046, pad=0.04)
-
             ax_pred.imshow(
                 pred,
                 cmap=cmap,
@@ -160,7 +147,7 @@ def generate_prediction_pdf(
                 vmax=n_classes,
                 interpolation="nearest",
             )
-            ax_pred.set_title(f"Pred (t={threshold})", fontsize=10)
+            ax_pred.set_title(f"Prediction (t={threshold})", fontsize=10)
             ax_pred.axis("off")
 
             plt.tight_layout()

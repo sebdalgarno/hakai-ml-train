@@ -1,6 +1,7 @@
 """Visualize chips with augmentations applied."""
 
 import argparse
+import math
 import random
 from pathlib import Path
 
@@ -35,19 +36,14 @@ def load_transforms_from_config(config_path: Path) -> tuple[A.Compose, A.Compose
     return train_transforms, test_transforms
 
 
-def apply_augmentation(
-    image: np.ndarray, label: np.ndarray, transform: A.Compose
-) -> tuple[np.ndarray, np.ndarray]:
+def apply_augmentation(image: np.ndarray, transform: A.Compose) -> np.ndarray:
     """Apply augmentation and return image ready for display."""
-    augmented = transform(image=image, mask=label)
+    augmented = transform(image=image)
     aug_image = augmented["image"]
-    aug_label = augmented["mask"]
 
     # Handle tensor output from ToTensorV2
     if hasattr(aug_image, "numpy"):
         aug_image = aug_image.numpy()
-    if hasattr(aug_label, "numpy"):
-        aug_label = aug_label.numpy()
 
     # Convert CHW to HWC if needed
     if aug_image.ndim == 3 and aug_image.shape[0] in [1, 3, 4]:
@@ -57,7 +53,7 @@ def apply_augmentation(
     if aug_image.dtype in [np.float32, np.float64]:
         aug_image = unnormalize(aug_image, IMAGENET_MEAN, IMAGENET_STD)
 
-    return aug_image, aug_label
+    return aug_image
 
 
 def visualize_augmented_samples(
@@ -65,20 +61,14 @@ def visualize_augmented_samples(
     config_path: Path,
     output_path: Path,
     n_samples: int = 16,
-    n_augmentations: int = 3,
-    class_names: dict[int, str] | None = None,
-    ignore_index: int = -100,
+    n_augmentations: int = 8,
     seed: int = 42,
 ) -> None:
-    """Create PDF showing original chips and multiple augmented versions.
+    """Create PDF showing mosaic of augmented images for each tile.
 
-    Each page shows one chip with:
-    - Original image + label
-    - N augmented versions
+    Each page shows one original tile and a grid of augmented versions.
+    No ground truth labels are shown.
     """
-    if class_names is None:
-        class_names = {0: "bg", 1: "seagrass"}
-
     # Load transforms
     train_transforms, _ = load_transforms_from_config(config_path)
 
@@ -91,56 +81,49 @@ def visualize_augmented_samples(
     random.seed(seed)
     samples = random.sample(files, min(n_samples, len(files)))
 
-    # Color map for labels
-    n_classes = max(class_names.keys()) + 1
-    cmap = plt.colormaps.get_cmap("tab10").resampled(n_classes + 1)
-
     print(f"Generating augmented visualizations for {len(samples)} samples...")
     print(f"Config: {config_path.name}")
     print(f"Augmentations per sample: {n_augmentations}")
+
+    # Calculate grid dimensions for augmented images
+    n_cols = int(math.ceil(math.sqrt(n_augmentations)))
+    n_rows = int(math.ceil(n_augmentations / n_cols))
 
     with PdfPages(output_path) as pdf:
         # Title page
         fig = plt.figure(figsize=(11, 8.5))
         fig.text(
-            0.5, 0.6,
+            0.5,
+            0.6,
             "Augmentation Visualization",
-            ha="center", va="center", fontsize=20, fontweight="bold"
+            ha="center",
+            va="center",
+            fontsize=20,
+            fontweight="bold",
         )
         fig.text(
-            0.5, 0.45,
+            0.5,
+            0.45,
             f"Config: {config_path.name}",
-            ha="center", va="center", fontsize=12
+            ha="center",
+            va="center",
+            fontsize=12,
         )
         fig.text(
-            0.5, 0.38,
+            0.5,
+            0.38,
             f"Chip directory: {chip_dir}",
-            ha="center", va="center", fontsize=10
+            ha="center",
+            va="center",
+            fontsize=10,
         )
         fig.text(
-            0.5, 0.31,
+            0.5,
+            0.31,
             f"Samples: {len(samples)} | Augmentations per sample: {n_augmentations}",
-            ha="center", va="center", fontsize=10
-        )
-
-        # Add legend
-        legend_elements = [
-            plt.Line2D(
-                [0], [0], marker="s", color="w",
-                markerfacecolor=cmap(i), markersize=12, label=name
-            )
-            for i, name in class_names.items()
-        ]
-        legend_elements.append(
-            plt.Line2D(
-                [0], [0], marker="s", color="w",
-                markerfacecolor="white", markeredgecolor="gray",
-                markersize=12, label="ignore"
-            )
-        )
-        fig.legend(
-            handles=legend_elements, loc="center",
-            bbox_to_anchor=(0.5, 0.18), ncol=len(legend_elements), fontsize=10
+            ha="center",
+            va="center",
+            fontsize=10,
         )
 
         pdf.savefig(fig)
@@ -150,51 +133,43 @@ def visualize_augmented_samples(
         for sample_file in tqdm(samples, desc="Processing samples"):
             data = np.load(sample_file)
             orig_image = data["image"]
-            orig_label = data["label"]
 
-            # Create figure: 2 rows x (1 + n_augmentations) columns
-            # Row 1: images, Row 2: labels
-            n_cols = 1 + n_augmentations
-            fig, axes = plt.subplots(2, n_cols, figsize=(3 * n_cols, 7))
+            # Create figure with mosaic layout
+            fig = plt.figure(figsize=(12, 10))
 
-            fig.suptitle(sample_file.name, fontsize=10, fontweight="bold")
-
-            # Original image
-            axes[0, 0].imshow(orig_image)
-            axes[0, 0].set_title("Original", fontsize=9)
-            axes[0, 0].axis("off")
-
-            # Original label
-            label_display = orig_label.copy().astype(float)
-            label_display[orig_label == ignore_index] = np.nan
-            axes[1, 0].imshow(
-                label_display, cmap=cmap, vmin=0, vmax=n_classes, interpolation="nearest"
+            # Original image at top (spanning full width)
+            ax_orig = fig.add_axes([0.3, 0.75, 0.4, 0.22])
+            ax_orig.imshow(orig_image)
+            ax_orig.set_title(
+                f"Original: {sample_file.name}", fontsize=10, fontweight="bold"
             )
-            axes[1, 0].set_title("Label", fontsize=9)
-            axes[1, 0].axis("off")
+            ax_orig.axis("off")
 
-            # Augmented versions
+            # Grid of augmented images below
+            grid_height = 0.68
+            grid_width = 0.95
+            cell_width = grid_width / n_cols
+            cell_height = grid_height / n_rows
+            margin = 0.02
+
             for aug_idx in range(n_augmentations):
-                aug_image, aug_label = apply_augmentation(
-                    orig_image.copy(), orig_label.copy(), train_transforms
-                )
+                row = aug_idx // n_cols
+                col = aug_idx % n_cols
 
-                col = aug_idx + 1
+                # Calculate position
+                left = 0.025 + col * cell_width + margin / 2
+                bottom = 0.02 + (n_rows - 1 - row) * cell_height + margin / 2
+                width = cell_width - margin
+                height = cell_height - margin
 
-                # Augmented image
-                axes[0, col].imshow(aug_image)
-                axes[0, col].set_title(f"Aug {aug_idx + 1}", fontsize=9)
-                axes[0, col].axis("off")
+                ax = fig.add_axes([left, bottom, width, height])
 
-                # Augmented label
-                label_display = aug_label.copy().astype(float)
-                label_display[aug_label == ignore_index] = np.nan
-                axes[1, col].imshow(
-                    label_display, cmap=cmap, vmin=0, vmax=n_classes, interpolation="nearest"
-                )
-                axes[1, col].axis("off")
+                aug_image = apply_augmentation(orig_image.copy(), train_transforms)
 
-            plt.tight_layout()
+                ax.imshow(aug_image)
+                ax.set_title(f"Aug {aug_idx + 1}", fontsize=8)
+                ax.axis("off")
+
             pdf.savefig(fig)
             plt.close(fig)
 
@@ -206,17 +181,12 @@ def compare_augmentation_configs(
     config_paths: list[Path],
     output_path: Path,
     n_samples: int = 8,
-    class_names: dict[int, str] | None = None,
-    ignore_index: int = -100,
     seed: int = 42,
 ) -> None:
     """Compare augmentations from multiple configs side by side.
 
     Each page shows one chip with augmentation from each config.
     """
-    if class_names is None:
-        class_names = {0: "bg", 1: "seagrass"}
-
     # Load all transforms
     all_transforms = []
     config_names = []
@@ -234,54 +204,34 @@ def compare_augmentation_configs(
     random.seed(seed)
     samples = random.sample(files, min(n_samples, len(files)))
 
-    n_classes = max(class_names.keys()) + 1
-    cmap = plt.colormaps.get_cmap("tab10").resampled(n_classes + 1)
-
     print(f"Comparing {len(config_paths)} configs on {len(samples)} samples...")
 
     with PdfPages(output_path) as pdf:
         for sample_file in tqdm(samples, desc="Processing samples"):
             data = np.load(sample_file)
             orig_image = data["image"]
-            orig_label = data["label"]
 
-            # Create figure: 2 rows x (1 + n_configs) columns
+            # Create figure: 1 row x (1 + n_configs) columns
             n_cols = 1 + len(config_paths)
-            fig, axes = plt.subplots(2, n_cols, figsize=(3 * n_cols, 7))
+            fig, axes = plt.subplots(1, n_cols, figsize=(3 * n_cols, 4))
 
             fig.suptitle(sample_file.name, fontsize=10, fontweight="bold")
 
             # Original
-            axes[0, 0].imshow(orig_image)
-            axes[0, 0].set_title("Original", fontsize=9)
-            axes[0, 0].axis("off")
-
-            label_display = orig_label.copy().astype(float)
-            label_display[orig_label == ignore_index] = np.nan
-            axes[1, 0].imshow(
-                label_display, cmap=cmap, vmin=0, vmax=n_classes, interpolation="nearest"
-            )
-            axes[1, 0].set_title("Label", fontsize=9)
-            axes[1, 0].axis("off")
+            axes[0].imshow(orig_image)
+            axes[0].set_title("Original", fontsize=9)
+            axes[0].axis("off")
 
             # Each config's augmentation
-            for cfg_idx, (transform, name) in enumerate(zip(all_transforms, config_names, strict=True)):
-                aug_image, aug_label = apply_augmentation(
-                    orig_image.copy(), orig_label.copy(), transform
-                )
+            for cfg_idx, (transform, name) in enumerate(
+                zip(all_transforms, config_names, strict=True)
+            ):
+                aug_image = apply_augmentation(orig_image.copy(), transform)
 
                 col = cfg_idx + 1
-
-                axes[0, col].imshow(aug_image)
-                axes[0, col].set_title(name, fontsize=8)
-                axes[0, col].axis("off")
-
-                label_display = aug_label.copy().astype(float)
-                label_display[aug_label == ignore_index] = np.nan
-                axes[1, col].imshow(
-                    label_display, cmap=cmap, vmin=0, vmax=n_classes, interpolation="nearest"
-                )
-                axes[1, col].axis("off")
+                axes[col].imshow(aug_image)
+                axes[col].set_title(name, fontsize=8)
+                axes[col].axis("off")
 
             plt.tight_layout()
             pdf.savefig(fig)
@@ -322,20 +272,8 @@ def main():
     parser.add_argument(
         "--n-augmentations",
         type=int,
-        default=3,
-        help="Number of augmentation variants per sample (default: 3)",
-    )
-    parser.add_argument(
-        "--class-names",
-        nargs="+",
-        default=["bg", "seagrass"],
-        help="Class names in order (default: bg seagrass)",
-    )
-    parser.add_argument(
-        "--ignore-index",
-        type=int,
-        default=-100,
-        help="Ignore index value (default: -100)",
+        default=8,
+        help="Number of augmentation variants per sample (default: 8)",
     )
     parser.add_argument(
         "--seed",
@@ -353,7 +291,6 @@ def main():
 
     args = parser.parse_args()
 
-    class_names = {i: name for i, name in enumerate(args.class_names)}
     args.output.parent.mkdir(parents=True, exist_ok=True)
 
     if args.compare:
@@ -364,8 +301,6 @@ def main():
             all_configs,
             args.output,
             n_samples=args.n_samples,
-            class_names=class_names,
-            ignore_index=args.ignore_index,
             seed=args.seed,
         )
     else:
@@ -376,8 +311,6 @@ def main():
             args.output,
             n_samples=args.n_samples,
             n_augmentations=args.n_augmentations,
-            class_names=class_names,
-            ignore_index=args.ignore_index,
             seed=args.seed,
         )
 

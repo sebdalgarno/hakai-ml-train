@@ -7,19 +7,18 @@ set -e
 #
 # Examples:
 # ./scripts/visualize_chips_aug.sh configs/seagrass-rgb/unetpp_resnet34_light_aug.yaml
-# ./scripts/visualize_chips_aug.sh configs/seagrass-rgb/unetpp_resnet34_targeted_aug.yaml
+# ./scripts/visualize_chips_aug.sh configs/seagrass-rgb/augmentation-experiment/segformer_domain_aug.yaml
 
 # CONFIG -----
 CONFIG="${1:?Error: config path required}"
 
 # DIRECTORIES -----
 CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_512"
-OUTPUT_DIR="outputs"
+OUTPUT_DIR="outputs/visualize-chips-aug"
 
 # PARAMETERS -----
-CLASS_NAMES="bg seagrass"
 N_SAMPLES=16
-N_AUGMENTATIONS=3
+N_AUGMENTATIONS=8
 
 # OUTPUT -----
 CONFIG_NAME=$(basename "${CONFIG%.yaml}")
@@ -36,8 +35,7 @@ python -m src.prepare.visualize_augmented "$CHIP_DIR/train" \
     --config "$CONFIG" \
     --output "$OUTPUT" \
     --n-samples "$N_SAMPLES" \
-    --n-augmentations "$N_AUGMENTATIONS" \
-    --class-names $CLASS_NAMES
+    --n-augmentations "$N_AUGMENTATIONS"
 
 echo ""
 echo "PDF saved to: $OUTPUT"
