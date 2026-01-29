@@ -9,7 +9,7 @@ trainer:
   logger:
   - class_path: lightning.pytorch.loggers.WandbLogger
     init_args:
-      name: segformer_cv_south
+      name: segformer_cv_north
       save_dir: .
       version: null
       offline: false
@@ -28,7 +28,7 @@ trainer:
       - seagrass
       - regional-cv
       - segformer
-      - cv-south
+      - cv-north
       config: null
       config_exclude_keys: null
       config_include_keys: null
@@ -49,8 +49,8 @@ trainer:
   callbacks:
   - class_path: lightning.pytorch.callbacks.ModelCheckpoint
     init_args:
-      dirpath: /mnt/class_data/sdalgarno/checkpoints/regional-cv/south
-      filename: segformer_cv_south_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+      dirpath: /mnt/class_data/sdalgarno/checkpoints/regional-cv/north
+      filename: segformer_cv_north_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
       monitor: val/iou_epoch
       verbose: true
       save_last: true
@@ -148,9 +148,9 @@ model:
 data:
   class_path: src.data.DataModule
   init_args:
-    train_chip_dir: /mnt/class_data/sdalgarno/cv_south_sampled/chips_1024/train
-    val_chip_dir: /mnt/class_data/sdalgarno/cv_south_sampled/chips_1024/val
-    test_chip_dir: /mnt/class_data/sdalgarno/cv_south_sampled/chips_1024/test
+    train_chip_dir: /mnt/class_data/sdalgarno/cv_north_sampled/chips_1024/train
+    val_chip_dir: /mnt/class_data/sdalgarno/cv_north_sampled/chips_1024/val
+    test_chip_dir: /mnt/class_data/sdalgarno/cv_north_sampled/chips_1024/test
     batch_size: 6
     num_workers: 16
     pin_memory: true
@@ -271,5 +271,6 @@ data:
     crop_size: null
 optimizer: null
 lr_scheduler: null
-ckpt_path: null
+ckpt_path: /mnt/class_data/sdalgarno/checkpoints/regional-cv/north/segformer_cv_north_epoch-199_val-iou-0.8628.ckpt
+verbose: true
 weights_only: null

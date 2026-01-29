@@ -21,7 +21,16 @@
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(xargs:*)",
-      "WebFetch(domain:www.sciencedirect.com)"
+      "WebFetch(domain:www.sciencedirect.com)",
+      "Bash(for split in train val test)",
+      "Bash(do echo \"=== $split sites ===\" ls /mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/$split/*.npz)",
+      "Bash(while read f)",
+      "Bash(do basename \"$f\")",
+      "Bash(__NEW_LINE_c820518f3f149907__ echo \"\")",
+      "Bash(do echo \"$dir:\" ls /mnt/class_data/sdalgarno/checkpoints/architecture-experiment/$dir/*.ckpt)",
+      "Bash(do echo \"$dir:\" ls /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment/$dir/*.ckpt)",
+      "Bash(__NEW_LINE_5d087c2a0fae3ed8__ echo \"\")",
+      "Bash(__NEW_LINE_5d63e9c73bcca8a4__ echo \"\")"
     ]
   }
 }
