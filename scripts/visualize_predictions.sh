@@ -4,11 +4,11 @@ set -e
 
 # CONFIG -----
 CONFIG="configs/seagrass-rgb/architecture-experiment/segformer_mitb2_1024.yaml"
-CKPT="/mnt/class_data/sdalgarno/checkpoints/architecture-experiment/segformer_mitb2_1024/last.ckpt"
+CKPT="seagrass-rgb/jhf1t0ih/checkpoints/last.ckpt"
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_1024"
-OUTPUT_BASE="outputs/"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024"
+OUTPUT_BASE="outputs/architecture-experiment/"
 
 # PARAMETERS -----
 CLASS_NAMES="bg seagrass"

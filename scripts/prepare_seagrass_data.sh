@@ -11,7 +11,7 @@ set -e
 # DIRECTORIES -----
 RAW_DIR="/mnt/class_data/sdalgarno/main/raw_data"
 MAIN_CHIP_DIR="/mnt/class_data/sdalgarno/main/chips_1024"
-PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024"
+PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_50/chips_1024"
 
 # CHIP PARAMETERS -----
 CHIP_SIZE=1024
@@ -22,7 +22,7 @@ DTYPE="uint8"
 REMAP="0 -100 1"
 
 # PROTOTYPE SAMPLING -----
-PROTOTYPE_FRACTION=0.25  # Fraction applied to smallest site, then sampled equally from all
+PROTOTYPE_FRACTION=0.5  # Fraction applied to smallest site, then sampled equally from all
 SEED=42
 
 # # Step 1: Create all chips -----
