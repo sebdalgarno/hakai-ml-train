@@ -134,43 +134,40 @@ def visualize_augmented_samples(
             data = np.load(sample_file)
             orig_image = data["image"]
 
-            # Create figure with mosaic layout
-            fig = plt.figure(figsize=(12, 10))
+            # Grid layout: original + augmented images in a tight grid
+            total_images = 1 + n_augmentations
+            grid_cols = int(math.ceil(math.sqrt(total_images)))
+            grid_rows = int(math.ceil(total_images / grid_cols))
 
-            # Original image at top (spanning full width)
-            ax_orig = fig.add_axes([0.3, 0.75, 0.4, 0.22])
-            ax_orig.imshow(orig_image)
-            ax_orig.set_title(
-                f"Original: {sample_file.name}", fontsize=10, fontweight="bold"
+            fig, axes = plt.subplots(
+                grid_rows,
+                grid_cols,
+                figsize=(2.5 * grid_cols, 2.5 * grid_rows),
             )
-            ax_orig.axis("off")
+            axes = axes.flatten()
 
-            # Grid of augmented images below
-            grid_height = 0.68
-            grid_width = 0.95
-            cell_width = grid_width / n_cols
-            cell_height = grid_height / n_rows
-            margin = 0.02
+            # Original image first
+            axes[0].imshow(orig_image)
+            axes[0].set_title("Original", fontsize=9, fontweight="bold")
+            axes[0].axis("off")
 
+            # Augmented images
             for aug_idx in range(n_augmentations):
-                row = aug_idx // n_cols
-                col = aug_idx % n_cols
-
-                # Calculate position
-                left = 0.025 + col * cell_width + margin / 2
-                bottom = 0.02 + (n_rows - 1 - row) * cell_height + margin / 2
-                width = cell_width - margin
-                height = cell_height - margin
-
-                ax = fig.add_axes([left, bottom, width, height])
-
+                ax = axes[aug_idx + 1]
                 aug_image = apply_augmentation(orig_image.copy(), train_transforms)
-
                 ax.imshow(aug_image)
                 ax.set_title(f"Aug {aug_idx + 1}", fontsize=8)
                 ax.axis("off")
 
-            pdf.savefig(fig)
+            # Hide any unused axes
+            for idx in range(total_images, len(axes)):
+                axes[idx].axis("off")
+
+            fig.suptitle(sample_file.name, fontsize=10, y=0.98)
+            plt.subplots_adjust(
+                wspace=0.05, hspace=0.15, left=0.02, right=0.98, top=0.93, bottom=0.02
+            )
+            pdf.savefig(fig, dpi=300)
             plt.close(fig)
 
     print(f"Saved to: {output_path}")
@@ -234,7 +231,7 @@ def compare_augmentation_configs(
                 axes[col].axis("off")
 
             plt.tight_layout()
-            pdf.savefig(fig)
+            pdf.savefig(fig, dpi=300)
             plt.close(fig)
 
     print(f"Saved comparison to: {output_path}")

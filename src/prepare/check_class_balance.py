@@ -203,84 +203,36 @@ def visualize_samples(
     n_classes = max(class_names.keys()) + 1
     cmap = plt.colormaps.get_cmap("tab10").resampled(n_classes + 1)
 
-    # 4 samples per page, 2 columns (image + label)
-    samples_per_page = 4
-    n_pages = (len(samples) + samples_per_page - 1) // samples_per_page
-
+    # One sample per page - image and mask side by side at high resolution
     with PdfPages(output_path) as pdf:
-        for page in range(n_pages):
-            fig, axes = plt.subplots(samples_per_page, 2, figsize=(10, 12))
-            start_idx = page * samples_per_page
+        for f in tqdm(samples, desc="Generating pages"):
+            data = np.load(f)
+            img = data["image"]
+            label = data["label"]
 
-            for i in range(samples_per_page):
-                sample_idx = start_idx + i
-                ax_img = axes[i, 0]
-                ax_label = axes[i, 1]
+            fig, axes = plt.subplots(1, 2, figsize=(12, 6))
 
-                if sample_idx < len(samples):
-                    f = samples[sample_idx]
-                    data = np.load(f)
-                    img = data["image"]
-                    label = data["label"]
+            axes[0].imshow(img)
+            axes[0].set_title(f.stem, fontsize=10)
+            axes[0].axis("off")
 
-                    # Plot image
-                    ax_img.imshow(img)
-                    ax_img.set_title(f.name, fontsize=8)
-                    ax_img.axis("off")
+            label_display = label.copy().astype(float)
+            label_display[label == ignore_index] = np.nan
 
-                    # Plot label with color map
-                    label_display = label.copy().astype(float)
-                    label_display[label == ignore_index] = np.nan
+            axes[1].imshow(
+                label_display,
+                cmap=cmap,
+                vmin=0,
+                vmax=n_classes,
+                interpolation="nearest",
+            )
+            axes[1].set_title("Label", fontsize=10)
+            axes[1].axis("off")
 
-                    ax_label.imshow(
-                        label_display,
-                        cmap=cmap,
-                        vmin=0,
-                        vmax=n_classes,
-                        interpolation="nearest",
-                    )
-                    ax_label.set_title("Label", fontsize=8)
-                    ax_label.axis("off")
-                else:
-                    ax_img.axis("off")
-                    ax_label.axis("off")
-
-            # Add legend on first page
-            if page == 0:
-                legend_elements = [
-                    plt.Line2D(
-                        [0],
-                        [0],
-                        marker="s",
-                        color="w",
-                        markerfacecolor=cmap(i),
-                        markersize=10,
-                        label=name,
-                    )
-                    for i, name in class_names.items()
-                ]
-                legend_elements.append(
-                    plt.Line2D(
-                        [0],
-                        [0],
-                        marker="s",
-                        color="w",
-                        markerfacecolor="white",
-                        markeredgecolor="gray",
-                        markersize=10,
-                        label="ignore",
-                    )
-                )
-                fig.legend(
-                    handles=legend_elements,
-                    loc="upper center",
-                    ncol=len(legend_elements),
-                    fontsize=8,
-                )
-
-            plt.tight_layout()
-            plt.subplots_adjust(top=0.93)
-            pdf.savefig(fig)
+            plt.subplots_adjust(
+                wspace=0.05, left=0.02, right=0.98, top=0.95, bottom=0.02
+            )
+            pdf.savefig(fig, dpi=300)
             plt.close(fig)
 
     print(f"Saved visualization to: {output_path}")
@@ -371,7 +323,7 @@ def get_class_balance_stats(
     for f in files:
         label = np.load(f)["label"]
         unique, c = np.unique(label, return_counts=True)
-        for u, cnt in zip(unique, c):
+        for u, cnt in zip(unique, c, strict=False):
             counts[int(u)] += cnt
             chips_with_class[int(u)] += 1
 
@@ -745,6 +697,7 @@ def generate_report(
             plt.close(fig)
 
         # Sample visualization pages for each split
+        # One sample per page at high resolution
         for split in splits:
             split_dir = chip_dir / split
             if not split_dir.exists():
@@ -755,85 +708,45 @@ def generate_report(
                 continue
 
             random.seed(seed)
-            samples = random.sample(files, min(n_samples, len(files)))
+            split_samples = random.sample(files, min(n_samples, len(files)))
 
-            samples_per_page = 4
-            n_pages = (len(samples) + samples_per_page - 1) // samples_per_page
+            for idx, f in enumerate(split_samples):
+                data = np.load(f)
+                img = data["image"]
+                label = data["label"]
 
-            for page in range(n_pages):
-                fig, axes = plt.subplots(samples_per_page, 2, figsize=(10, 12))
-                start_idx = page * samples_per_page
+                fig, axes = plt.subplots(1, 2, figsize=(12, 6))
 
-                for i in range(samples_per_page):
-                    sample_idx = start_idx + i
-                    ax_img = axes[i, 0]
-                    ax_label = axes[i, 1]
-
-                    if sample_idx < len(samples):
-                        f = samples[sample_idx]
-                        data = np.load(f)
-                        img = data["image"]
-                        label = data["label"]
-
-                        ax_img.imshow(img)
-                        ax_img.set_title(f.name, fontsize=8)
-                        ax_img.axis("off")
-
-                        label_display = label.copy().astype(float)
-                        label_display[label == ignore_index] = np.nan
-
-                        ax_label.imshow(
-                            label_display,
-                            cmap=cmap,
-                            vmin=0,
-                            vmax=n_classes,
-                            interpolation="nearest",
-                        )
-                        ax_label.set_title("Label", fontsize=8)
-                        ax_label.axis("off")
-                    else:
-                        ax_img.axis("off")
-                        ax_label.axis("off")
-
-                # Add split label and legend on first page of each split
-                if page == 0:
+                # Add split label on first page of each split
+                if idx == 0:
                     fig.suptitle(
-                        f"{split.upper()} samples", fontsize=12, fontweight="bold"
-                    )
-                    legend_elements = [
-                        plt.Line2D(
-                            [0],
-                            [0],
-                            marker="s",
-                            color="w",
-                            markerfacecolor=cmap(i),
-                            markersize=10,
-                            label=name,
-                        )
-                        for i, name in class_names.items()
-                    ]
-                    legend_elements.append(
-                        plt.Line2D(
-                            [0],
-                            [0],
-                            marker="s",
-                            color="w",
-                            markerfacecolor="white",
-                            markeredgecolor="gray",
-                            markersize=10,
-                            label="ignore",
-                        )
-                    )
-                    fig.legend(
-                        handles=legend_elements,
-                        loc="upper center",
-                        ncol=len(legend_elements),
-                        fontsize=8,
+                        f"{split.upper()} samples",
+                        fontsize=12,
+                        fontweight="bold",
+                        y=0.98,
                     )
 
-                plt.tight_layout()
-                plt.subplots_adjust(top=0.93)
-                pdf.savefig(fig)
+                axes[0].imshow(img)
+                axes[0].set_title(f.stem, fontsize=10)
+                axes[0].axis("off")
+
+                label_display = label.copy().astype(float)
+                label_display[label == ignore_index] = np.nan
+
+                axes[1].imshow(
+                    label_display,
+                    cmap=cmap,
+                    vmin=0,
+                    vmax=n_classes,
+                    interpolation="nearest",
+                )
+                axes[1].set_title("Label", fontsize=10)
+                axes[1].axis("off")
+
+                plt.subplots_adjust(
+                    wspace=0.05, left=0.02, right=0.98, top=0.95, bottom=0.02
+                )
+                pdf.savefig(fig, dpi=300)
                 plt.close(fig)
 
     print(f"Saved report to: {output_path}")
@@ -888,7 +801,7 @@ def check_class_balance(
     for f in tqdm(files, desc="Scanning chips"):
         label = np.load(f)["label"]
         unique, c = np.unique(label, return_counts=True)
-        for u, cnt in zip(unique, c):
+        for u, cnt in zip(unique, c, strict=False):
             counts[int(u)] += cnt
             chips_with_class[int(u)] += 1
 

@@ -3,8 +3,8 @@
 set -e
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_512"
-OUTPUT_DIR="outputs/visualize-chips"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/"
+OUTPUT_DIR="outputs/visualize-chips/"
 
 # PARAMETERS -----
 CLASS_NAMES="bg seagrass"

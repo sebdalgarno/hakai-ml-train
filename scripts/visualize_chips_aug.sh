@@ -13,7 +13,7 @@ set -e
 CONFIG="${1:?Error: config path required}"
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype/chips_512"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024"
 OUTPUT_DIR="outputs/visualize-chips-aug"
 
 # PARAMETERS -----

@@ -105,11 +105,7 @@ def generate_prediction_pdf(
     print(f"Generating predictions for {len(samples)} chips (threshold={threshold})...")
 
     with PdfPages(output_path) as pdf:
-        for page in tqdm(range(n_pages), desc="Generating pages"):
-            fig, axes = plt.subplots(1, 3, figsize=(12, 4))
-            ax_img, ax_label, ax_pred = axes
-
-            f = samples[page]
+        for f in tqdm(samples, desc="Generating pages"):
             data = np.load(f)
             image = data["image"]
             label = data["label"]
@@ -123,8 +119,11 @@ def generate_prediction_pdf(
                 threshold,
             )
 
+            fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+            ax_img, ax_label, ax_pred = axes
+
             ax_img.imshow(image)
-            ax_img.set_title(f.name, fontsize=10)
+            ax_img.set_title(f.stem, fontsize=10)
             ax_img.axis("off")
 
             label_display = label.copy().astype(float)
@@ -150,8 +149,10 @@ def generate_prediction_pdf(
             ax_pred.set_title(f"Prediction (t={threshold})", fontsize=10)
             ax_pred.axis("off")
 
-            plt.tight_layout()
-            pdf.savefig(fig)
+            plt.subplots_adjust(
+                wspace=0.05, left=0.02, right=0.98, top=0.92, bottom=0.02
+            )
+            pdf.savefig(fig, dpi=300)
             plt.close(fig)
 
     print(f"Saved predictions to: {output_path}")

@@ -3,16 +3,16 @@
 set -e
 
 # CONFIG -----
-CONFIG="configs/seagrass-rgb/architecture-experiment/segformer_mitb2_1024.yaml"
-CKPT="seagrass-rgb/jhf1t0ih/checkpoints/last.ckpt"
+CONFIG="configs/seagrass-rgb/segformer_train50.yaml"
+CKPT="/mnt/class_data/sdalgarno/checkpoints/segformer-train50/last.ckpt"
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024"
+CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_75/chips_1024"
 OUTPUT_DIR="outputs/visualize-pred"
 
 # PARAMETERS -----
-CLASS_NAMES="bg seagrass"
-N_SAMPLES=60
+CLASS_NAMES="Background Eelgrass"
+N_SAMPLES=100
 THRESHOLD=0.5
 
 # RUN -----
