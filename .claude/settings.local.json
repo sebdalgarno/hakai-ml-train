@@ -30,7 +30,8 @@
       "Bash(do echo \"$dir:\" ls /mnt/class_data/sdalgarno/checkpoints/architecture-experiment/$dir/*.ckpt)",
       "Bash(do echo \"$dir:\" ls /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment/$dir/*.ckpt)",
       "Bash(__NEW_LINE_5d087c2a0fae3ed8__ echo \"\")",
-      "Bash(__NEW_LINE_5d63e9c73bcca8a4__ echo \"\")"
+      "Bash(__NEW_LINE_5d63e9c73bcca8a4__ echo \"\")",
+      "Bash(python:*)"
     ]
   }
 }
