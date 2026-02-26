@@ -26,9 +26,9 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/test"
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_50/chips_1024/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_50/chips_1024/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_50/chips_1024/test"
     batch_size: 6
     num_workers: 16
     pin_memory: true
@@ -46,18 +46,32 @@ data:
         transforms:
           - __class_fullname__: D4
             p: 1.0
-          - __class_fullname__: RandomBrightnessContrast
-            brightness_by_max: true
-            brightness_limit:
-              - -0.1
-              - 0.1
-            contrast_limit:
-              - -0.1
-              - 0.1
-            ensure_safe_range: false
-            p: 0.6
           - __class_fullname__: OneOf
-            p: 0.4
+            p: 0.5
+            transforms:
+              - __class_fullname__: RandomBrightnessContrast
+                brightness_by_max: true
+                brightness_limit:
+                  - -0.1
+                  - 0.1
+                contrast_limit:
+                  - -0.1
+                  - 0.1
+                ensure_safe_range: false
+                p: 1.0
+              - __class_fullname__: HueSaturationValue
+                hue_shift_limit:
+                  - -10.0
+                  - 10.0
+                p: 1.0
+                sat_shift_limit:
+                  - -15.0
+                  - 15.0
+                val_shift_limit:
+                  - -15.0
+                  - 15.0
+          - __class_fullname__: OneOf
+            p: 0.3
             transforms:
               - __class_fullname__: GaussNoise
                 mean_range:
@@ -78,7 +92,7 @@ data:
                   - 0.2
                 p: 1.0
           - __class_fullname__: OneOf
-            p: 0.4
+            p: 0.3
             transforms:
               - __class_fullname__: MotionBlur
                 allow_shifted: true
@@ -114,10 +128,10 @@ data:
             interpolation: 1
             keep_ratio: true
             mask_interpolation: 0
-            p: 0.5
+            p: 0.3
             rotate:
-              - 0.0
-              - 0.0
+              - -5.0
+              - 5.0
             rotate_method: largest_box
             scale:
               x:
@@ -135,11 +149,11 @@ data:
                 - 0.0
             translate_percent:
               x:
-                - 0.0
-                - 0.0
+                - -0.05
+                - 0.05
               y:
-                - 0.0
-                - 0.0
+                - -0.05
+                - 0.05
             translate_px: null
           - __class_fullname__: OneOf
             p: 0.3
@@ -181,17 +195,20 @@ data:
             tile_grid_size:
               - 8
               - 8
-          - __class_fullname__: HueSaturationValue
-            hue_shift_limit:
-              - -10.0
-              - 10.0
-            p: 0.5
-            sat_shift_limit:
-              - -15.0
-              - 15.0
-            val_shift_limit:
-              - -15.0
-              - 15.0
+          - __class_fullname__: ColorJitter
+            brightness:
+              - 0.95
+              - 1.05
+            contrast:
+              - 0.95
+              - 1.05
+            hue:
+              - -0.05
+              - 0.05
+            p: 0.3
+            saturation:
+              - 0.95
+              - 1.05
           - __class_fullname__: Normalize
             max_pixel_value: 255.0
             mean:

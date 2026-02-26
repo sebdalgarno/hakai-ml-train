@@ -7,6 +7,7 @@ CONFIG_DIR="configs/seagrass-rgb/augmentation-experiment"
 
 # CONFIGS (in order of increasing augmentation) -----
 CONFIGS=(
+    "$CONFIG_DIR/segformer_baseline_aug.yaml"
     "$CONFIG_DIR/segformer_default_aug.yaml"
     "$CONFIG_DIR/segformer_scale_aug.yaml"
     "$CONFIG_DIR/segformer_domain_aug.yaml"

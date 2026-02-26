@@ -7,7 +7,9 @@ MAIN_CHIP_DIR="/mnt/class_data/sdalgarno/main/chips_1024"
 PROTOTYPE_CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_50/chips_1024"
 
 # SAMPLING PARAMETERS -----
-PROTOTYPE_FRACTION=0.5  # Fraction applied to smallest site, then sampled equally from all
+# Use higher fraction for train to maintain ~73% train ratio
+TRAIN_FRACTION=0.58
+EVAL_FRACTION=0.50
 SEED=42
 
 # MAIN -----
@@ -16,12 +18,27 @@ echo "Sampling prototype dataset"
 echo "=============================================="
 echo "Source: $MAIN_CHIP_DIR"
 echo "Output: $PROTOTYPE_CHIP_DIR"
-echo "Fraction: $PROTOTYPE_FRACTION"
+echo "Train fraction: $TRAIN_FRACTION"
+echo "Val/Test fraction: $EVAL_FRACTION"
 echo "Seed: $SEED"
 echo ""
 
-python -m src.prepare.sample_prototype_by_site "$MAIN_CHIP_DIR" "$PROTOTYPE_CHIP_DIR" \
-    --fraction "$PROTOTYPE_FRACTION" \
+# Sample each split with appropriate fraction
+echo "=== TRAIN ==="
+python -m src.prepare.sample_prototype_by_site "$MAIN_CHIP_DIR/train" "$PROTOTYPE_CHIP_DIR/train" \
+    --fraction "$TRAIN_FRACTION" \
+    --seed "$SEED"
+
+echo ""
+echo "=== VAL ==="
+python -m src.prepare.sample_prototype_by_site "$MAIN_CHIP_DIR/val" "$PROTOTYPE_CHIP_DIR/val" \
+    --fraction "$EVAL_FRACTION" \
+    --seed "$SEED"
+
+echo ""
+echo "=== TEST ==="
+python -m src.prepare.sample_prototype_by_site "$MAIN_CHIP_DIR/test" "$PROTOTYPE_CHIP_DIR/test" \
+    --fraction "$EVAL_FRACTION" \
     --seed "$SEED"
 
 # SUMMARY -----

@@ -9,7 +9,7 @@ trainer:
   logger:
   - class_path: lightning.pytorch.loggers.WandbLogger
     init_args:
-      name: segformer_cv_north
+      name: segformer_baseline_aug
       save_dir: .
       version: null
       offline: false
@@ -26,14 +26,14 @@ trainer:
       notes: null
       tags:
       - seagrass
-      - regional-cv
+      - augmentation-experiment
       - segformer
-      - cv-north
+      - baseline-aug
       config: null
       config_exclude_keys: null
       config_include_keys: null
       allow_val_change: null
-      group: regional-cv
+      group: augmentation-experiment
       job_type: null
       mode: null
       force: null
@@ -49,8 +49,8 @@ trainer:
   callbacks:
   - class_path: lightning.pytorch.callbacks.ModelCheckpoint
     init_args:
-      dirpath: /mnt/class_data/sdalgarno/checkpoints/regional-cv/north
-      filename: segformer_cv_north_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+      dirpath: /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment/baseline
+      filename: segformer_baseline_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
       monitor: val/iou_epoch
       verbose: true
       save_last: true
@@ -67,8 +67,8 @@ trainer:
   - class_path: lightning.pytorch.callbacks.EarlyStopping
     init_args:
       monitor: val/iou_epoch
-      min_delta: 0.002
-      patience: 20
+      min_delta: 0.005
+      patience: 15
       verbose: false
       mode: max
       strict: true
@@ -83,7 +83,7 @@ trainer:
       log_momentum: false
       log_weight_decay: false
   fast_dev_run: false
-  max_epochs: 200
+  max_epochs: 1000
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -148,9 +148,9 @@ model:
 data:
   class_path: src.data.DataModule
   init_args:
-    train_chip_dir: /mnt/class_data/sdalgarno/cv_north_sampled/chips_1024/train
-    val_chip_dir: /mnt/class_data/sdalgarno/cv_north_sampled/chips_1024/val
-    test_chip_dir: /mnt/class_data/sdalgarno/cv_north_sampled/chips_1024/test
+    train_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_50/chips_1024/train
+    val_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_50/chips_1024/val
+    test_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_50/chips_1024/test
     batch_size: 6
     num_workers: 16
     pin_memory: true
@@ -168,65 +168,6 @@ data:
         transforms:
         - __class_fullname__: D4
           p: 1.0
-        - __class_fullname__: RandomBrightnessContrast
-          brightness_by_max: true
-          brightness_limit:
-          - -0.1
-          - 0.1
-          contrast_limit:
-          - -0.1
-          - 0.1
-          ensure_safe_range: false
-          p: 0.6
-        - __class_fullname__: OneOf
-          p: 0.4
-          transforms:
-          - __class_fullname__: GaussNoise
-            mean_range:
-            - 0.0
-            - 0.0
-            noise_scale_factor: 1.0
-            p: 1.0
-            per_channel: true
-            std_range:
-            - 0.02
-            - 0.044
-          - __class_fullname__: ISONoise
-            color_shift:
-            - 0.01
-            - 0.05
-            intensity:
-            - 0.1
-            - 0.2
-            p: 1.0
-        - __class_fullname__: OneOf
-          p: 0.4
-          transforms:
-          - __class_fullname__: MotionBlur
-            allow_shifted: true
-            angle_range:
-            - 0.0
-            - 360.0
-            blur_limit:
-            - 3
-            - 5
-            direction_range:
-            - -1.0
-            - 1.0
-            p: 1.0
-          - __class_fullname__: MedianBlur
-            blur_limit:
-            - 3
-            - 5
-            p: 1.0
-          - __class_fullname__: GaussianBlur
-            blur_limit:
-            - 0
-            - 0
-            p: 1.0
-            sigma_limit:
-            - 0.3
-            - 1.5
         - __class_fullname__: Normalize
           max_pixel_value: 255.0
           mean:
@@ -271,6 +212,5 @@ data:
     crop_size: null
 optimizer: null
 lr_scheduler: null
-ckpt_path: /mnt/class_data/sdalgarno/checkpoints/regional-cv/north/segformer_cv_north_epoch-199_val-iou-0.8628.ckpt
-verbose: true
+ckpt_path: null
 weights_only: null
