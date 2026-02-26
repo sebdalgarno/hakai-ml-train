@@ -144,6 +144,19 @@ data:
           - __class_fullname__: OneOf
             p: 0.3
             transforms:
+              - __class_fullname__: CoarseDropout
+                fill: 0.0
+                fill_mask: 0.0
+                hole_height_range:
+                  - 1
+                  - 5
+                hole_width_range:
+                  - 1
+                  - 5
+                num_holes_range:
+                  - 1
+                  - 64
+                p: 1.0
               - __class_fullname__: GridDistortion
                 border_mode: 0
                 distort_limit:
