@@ -7,6 +7,24 @@ SRC_DIR="/mnt/class_data/sdalgarno/main/chips_1024"
 DST_BASE="/mnt/class_data/sdalgarno"
 
 # FUNCTIONS -----
+# Extract site name from chip filename
+# Pattern: {site}_u{digits}_{chip_idx}.npz (most cases)
+# Exception: bennett_bay_{chip_idx}.npz (no ortho ID)
+extract_site() {
+    local filename="$1"
+    local base=$(basename "$filename" .npz)
+
+    # Try standard pattern: site_u{digits}_{idx}
+    if [[ "$base" =~ ^(.+)_u[0-9]+_[0-9]+$ ]]; then
+        echo "${BASH_REMATCH[1]}"
+    # Exception: bennett_bay_{idx}
+    elif [[ "$base" =~ ^(bennett_bay)_[0-9]+$ ]]; then
+        echo "${BASH_REMATCH[1]}"
+    else
+        echo ""
+    fi
+}
+
 copy_sites() {
     local dst_dir="$1"
     shift
@@ -21,8 +39,12 @@ copy_sites() {
             if [ -d "$SRC_DIR/$src_split" ]; then
                 for f in "$SRC_DIR/$src_split/${site}_"*.npz; do
                     if [ -f "$f" ]; then
-                        cp "$f" "$dst_dir/"
-                        count=$((count + 1))
+                        # Extract actual site name and compare exactly
+                        file_site=$(extract_site "$f")
+                        if [[ "$file_site" == "$site" ]]; then
+                            cp "$f" "$dst_dir/"
+                            count=$((count + 1))
+                        fi
                     fi
                 done
             fi
@@ -62,9 +84,9 @@ echo "  val (6 sites):"
 copy_sites "$DST/val" \
     superstition mcmullin_north auseth triquet beck bennett_bay
 
-echo "  train (8 sites):"
+echo "  train (9 sites):"
 copy_sites "$DST/train" \
-    koeye goose_sw pruth_bay grice_bay choked_pass triquet_bay calmus arakun
+    koeye goose_sw pruth_bay grice_bay choked_pass triquet_bay calmus arakun goose_grass_bay
 
 echo "  Summary: train=$(ls "$DST/train" | wc -l) val=$(ls "$DST/val" | wc -l) test=$(ls "$DST/test" | wc -l)"
 
@@ -75,9 +97,9 @@ DST="$DST_BASE/cv_central/chips_1024"
 rm -rf "$DST"
 mkdir -p "$DST/train" "$DST/val" "$DST/test"
 
-echo "  test (8 Central sites):"
+echo "  test (9 Central sites):"
 copy_sites "$DST/test" \
-    koeye goose_sw pruth_bay choked_pass superstition mcmullin_north triquet_bay triquet
+    koeye goose_sw pruth_bay choked_pass superstition mcmullin_north triquet_bay triquet goose_grass_bay
 
 echo "  val (6 sites):"
 copy_sites "$DST/val" \
@@ -106,11 +128,11 @@ echo "  val (7 sites):"
 copy_sites "$DST/val" \
     superstition triquet_bay kendrick_point section_cove triquet louscoone sedgwick
 
-echo "  train (16 sites):"
+echo "  train (17 sites):"
 copy_sites "$DST/train" \
     koeye goose_sw pruth_bay choked_pass louscoone_head mcmullin_north \
     island_bay ramsay bag_harbour swan_bay beljay_bay takelly_cove \
-    balcolm_inlet louscoone_west kendrick_point_west heater_harbour
+    balcolm_inlet louscoone_west kendrick_point_west heater_harbour goose_grass_bay
 
 echo "  Summary: train=$(ls "$DST/train" | wc -l) val=$(ls "$DST/val" | wc -l) test=$(ls "$DST/test" | wc -l)"
 

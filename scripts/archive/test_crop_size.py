@@ -11,23 +11,33 @@ from src.data import DataModule
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Test crop_size parameter in DataModule")
-    parser.add_argument("chip_dir", help="Path to chip directory (used for train/val/test)")
+    parser = argparse.ArgumentParser(
+        description="Test crop_size parameter in DataModule"
+    )
+    parser.add_argument(
+        "chip_dir", help="Path to chip directory (used for train/val/test)"
+    )
     parser.add_argument("--crop_size", type=int, default=None, help="Crop size to test")
-    parser.add_argument("--num_channels", type=int, default=3, help="Number of image channels")
+    parser.add_argument(
+        "--num_channels", type=int, default=3, help="Number of image channels"
+    )
     parser.add_argument("--visualize", action="store_true", help="Show sample images")
-    parser.add_argument("--num_samples", type=int, default=4, help="Number of samples to visualize")
+    parser.add_argument(
+        "--num_samples", type=int, default=4, help="Number of samples to visualize"
+    )
     args = parser.parse_args()
 
     # Minimal transforms
     transforms = A.to_dict(
-        A.Compose([
-            A.Normalize(
-                mean=[0.5] * args.num_channels,
-                std=[0.5] * args.num_channels,
-            ),
-            A.ToTensorV2(),
-        ])
+        A.Compose(
+            [
+                A.Normalize(
+                    mean=[0.5] * args.num_channels,
+                    std=[0.5] * args.num_channels,
+                ),
+                A.ToTensorV2(),
+            ]
+        )
     )
 
     dm = DataModule(

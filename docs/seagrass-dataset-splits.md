@@ -97,9 +97,9 @@ Use this split if all 35 sites are available.
 
 ------------------------------------------------------------------------
 
-## Split B: Reduced Dataset (29 sites) — REVISED
+## Split B: Reduced Dataset (30 sites) — REVISED
 
-Use this split if 9 sites are unavailable (Goose Grass Bay, Jaques Jarvis, Nettle, Powrivco, Sharp, Turret removed from South/Central/North).
+Use this split if 5 sites are unavailable (Jaques Jarvis, Nettle, Powrivco, Sharp, Turret removed from South/Central/North).
 
 **Revision notes**: 1. Original split had pruth_bay (70% of val chips) and grice_bay (53% of test chips) dominating their respective splits. These large sites were moved to training to prevent metrics being skewed by a single site. 2. Superstition swapped from test to val (and McMullin North to test) to balance difficulty across both splits, ensuring validation metrics predict test performance.
 
@@ -108,7 +108,7 @@ Use this split if 9 sites are unavailable (Goose Grass Bay, Jaques Jarvis, Nettl
 | Region  | Sites |
 |---------|-------|
 | South   | 6     |
-| Central | 8     |
+| Central | 9     |
 | North   | 15    |
 
 ### TEST (6 sites, 14%)
@@ -131,11 +131,11 @@ Use this split if 9 sites are unavailable (Goose Grass Bay, Jaques Jarvis, Nettl
 | Kendrick Point | North | 2,322 | M/L | E | Bleaching |
 | Auseth | South | 1,082 | L | E | Excellent baseline |
 | Triquet | Central | 724 | L | E | Clear baseline |
-| Louscoone | North | 673 | M/L | E/G | Overcast |
+| Louscoone | North | 1,541 | M/L | E/G | Overcast, cloud reflections |
 | Bennett Bay | South | 310 | H | M | Cloudy, glint |
-| **Total** |  | **9,611** |  |  |  |
+| **Total** |  | **10,479** |  |  |  |
 
-### TRAINING (17 sites, 75%)
+### TRAINING (18 sites, 75%)
 
 **South (3 sites):**
 
@@ -146,15 +146,16 @@ Use this split if 9 sites are unavailable (Goose Grass Bay, Jaques Jarvis, Nettl
 | Arakun       | 299        | L          | G       | —                                |
 | **Subtotal** | **10,130** |            |         |                                  |
 
-**Central (4 sites):**
+**Central (5 sites):**
 
-| Site        | Chips      | Difficulty | Quality | Key Conditions                                   |
-|-------------|------------|------------|---------|--------------------------------------------------|
-| Koeye       | 17,076     | H/M/L      | E/G/M   | Tannins, turbidity, glint (9 visits)             |
-| Goose SW    | 10,642     | H/M/L      | E/G     | Turbidity, overcast, low density (3 visits)      |
-| Pruth Bay   | 9,509      | M/L        | E/G/M   | Shadows, cloud reflections, subtidal (8 visits)  |
-| Choked Pass | 4,832      | L          | G       | Good all round                                   |
-| **Subtotal** | **42,059** |           |         |                                                  |
+| Site            | Chips      | Difficulty | Quality | Key Conditions                                   |
+|-----------------|------------|------------|---------|--------------------------------------------------|
+| Koeye           | 17,076     | H/M/L      | E/G/M   | Tannins, turbidity, glint (9 visits)             |
+| Goose SW        | 10,642     | H/M/L      | E/G     | Turbidity, overcast, low density (3 visits)      |
+| Pruth Bay       | 9,509      | M/L        | E/G/M   | Shadows, cloud reflections, subtidal (8 visits)  |
+| Choked Pass     | 4,832      | L          | G       | Good all round                                   |
+| Goose Grass Bay | 382        | L          | G       | —                                                |
+| **Subtotal**    | **42,441** |            |         |                                                  |
 
 **North (10 sites):**
 
@@ -172,16 +173,16 @@ Use this split if 9 sites are unavailable (Goose Grass Bay, Jaques Jarvis, Nettl
 | Heater Harbour      | 461        | M          | G       | Dark, low light  |
 | **Subtotal**        | **15,819** |            |         |                  |
 
-| **TRAIN TOTAL** | **68,008** | | | |
+| **TRAIN TOTAL** | **68,390** | | | |
 
 ### Summary (Split B)
 
 | Bucket | Sites | Chips  | %   | South | Central | North |
 |--------|-------|--------|-----|-------|---------|-------|
-| Train  | 17    | 68,008 | 75% | 3     | 4       | 10    |
-| Val    | 6     | 9,611  | 11% | 2     | 2       | 2     |
+| Train  | 18    | 68,390 | 75% | 3     | 5       | 10    |
+| Val    | 6     | 10,479 | 11% | 2     | 2       | 2     |
 | Test   | 6     | 12,829 | 14% | 1     | 2       | 3     |
-| **Total** | **29** | **90,448** | **100%** | **6** | **8** | **15** |
+| **Total** | **30** | **91,698** | **100%** | **6** | **9** | **15** |
 
 Note: Chip counts are after nodata removal. Largest sites (pruth_bay, grice_bay) moved to training to prevent single-site dominance in val/test metrics. Superstition swapped to val to balance difficulty across val/test
 
@@ -189,12 +190,12 @@ Note: Chip counts are after nodata removal. Largest sites (pruth_bay, grice_bay)
 
 | Bucket | Resolution Range | Sites at Each Resolution |
 |--------|------------------|--------------------------|
-| Train  | 2.0–5.6 cm | 2.0–3.0: Arakun, Calmus, Koeye, Pruth Bay, Ramsay, Swan Bay; 3.0–4.5: Goose SW, Grice Bay, Heater Harbour, Kendrick Point West, Louscoone Head, Louscoone West, Island Bay, Balcolm Inlet; 4.5–5.6: Beljay Bay, Choked Pass, Takelly Cove |
+| Train  | 2.0–5.6 cm | 2.0–3.0: Arakun, Calmus, Koeye, Pruth Bay, Ramsay, Swan Bay; 3.0–4.5: Goose SW, Grice Bay, Heater Harbour, Kendrick Point West, Louscoone Head, Louscoone West, Island Bay, Balcolm Inlet; 4.5–5.6: Beljay Bay, Choked Pass, Goose Grass Bay, Takelly Cove |
 | Val    | 1.6–5.2 cm | 1.6–3.0: Auseth, Superstition, Triquet; 4.0–5.2: Bennett Bay, Kendrick Point, Louscoone |
 | Test   | 2.3–5.0 cm | 2.3–3.0: McMullin North, Bag Harbour; 3.0–4.5: Triquet Bay, Section Cove, Sedgwick; 4.5–5.0: Beck |
 
 **Summary:**
-- **Train**: 2.0–5.6 cm (full range, 17 sites across 42 orthos)
+- **Train**: 2.0–5.6 cm (full range, 18 sites across 44 orthos)
 - **Val**: 1.6–5.2 cm (includes finest resolution via Superstition u0914 at 1.6 cm)
 - **Test**: 2.3–5.0 cm (moderate range, 6 sites)
 
@@ -203,6 +204,8 @@ All buckets cover a broad range of ground sampling distances (GSD), ensuring the
 ------------------------------------------------------------------------
 
 ## Prototype Dataset (Split B)
+
+> **Note:** This section is no longer used. The current approach takes a random subset of chips from all sites (maintaining site diversity) rather than selecting specific orthos. Kept for reference.
 
 A reduced subset of Split B for rapid iteration during architecture selection and hyperparameter tuning. Selects specific orthos (individual survey visits) rather than entire sites to control dataset size while maintaining diversity.
 
@@ -279,6 +282,8 @@ Note: Difficulty/quality counts in summary reflect that some orthos span multipl
 ------------------------------------------------------------------------
 
 ## Small Prototype Dataset
+
+> **Note:** This section is no longer used. See note in Prototype Dataset section above.
 
 A further reduced subset of the Prototype for rapid architecture and hyperparameter comparison. Reduces training to 5 orthos (~6,100 chips) while keeping the same val/test sets. Designed for fast iteration where relative performance matters more than absolute metrics.
 
@@ -379,7 +384,7 @@ Coverage across buckets for the full Split B dataset.
 |-------------------------|----------------|----------------|----------------|
 | Shadows | Pruth Bay, Louscoone Head | — | Beck |
 | Sparse eelgrass | Grice Bay | Superstition | Beck |
-| Cloud reflections | Pruth Bay | — | Sedgwick |
+| Cloud reflections | Pruth Bay | Louscoone | Sedgwick |
 | Cloudy/overcast | Balcolm Inlet, Goose SW | Louscoone | Sedgwick |
 | Glint | Koeye | Bennett Bay | — |
 | Tannins | Koeye | — | — |
@@ -435,7 +440,7 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 
 ### CV_NORTH (North held out)
 
-**Test**: All 15 North sites (22,903 chips)
+**Test**: All 15 North sites (23,771 chips)
 
 | Site | Chips | Difficulty | Quality | Key Conditions |
 |------|-------|------------|---------|----------------|
@@ -445,13 +450,13 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 | Ramsay | 2,125 | L | G | — |
 | Bag Harbour | 1,852 | L | E | Excellent baseline |
 | Section Cove | 1,603 | M/L | E/G | Hazy lighting |
+| Louscoone | 1,541 | M/L | E/G | Overcast, cloud reflections |
 | Swan Bay | 1,316 | L | E | Great conditions |
 | Beljay Bay | 1,116 | L | E | — |
 | Takelly Cove | 1,097 | — | G | — |
 | Balcolm Inlet | 1,010 | M | G | Cloudy |
 | Louscoone West | 867 | L | E | — |
 | Kendrick Point West | 691 | L | E | — |
-| Louscoone | 673 | M/L | E/G | Overcast |
 | Sedgwick | 634 | H/M | G/M | Overcast, cloud reflections |
 | Heater Harbour | 461 | M | G | Dark, low light |
 
@@ -466,7 +471,7 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 | Beck | 577 | South | H | M | Shadows, sparse |
 | Bennett Bay | 310 | South | H | M | Cloudy, glint |
 
-**Training** (8 sites, ~55,900 chips, 83%):
+**Training** (9 sites, ~56,300 chips, 83%):
 
 | Site | Chips | Region | Difficulty | Quality | Key Conditions |
 |------|-------|--------|------------|---------|----------------|
@@ -477,11 +482,12 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 | Choked Pass | 4,832 | Central | L | G | Good all round |
 | Triquet Bay | 3,726 | Central | H/M | E/G/M | Difficult edge |
 | Calmus | 1,961 | South | L | E | — |
+| Goose Grass Bay | 382 | Central | L | G | — |
 | Arakun | 299 | South | L | G | — |
 
 ### CV_CENTRAL (Central held out)
 
-**Test**: All 8 Central sites (55,446 chips)
+**Test**: All 9 Central sites (55,828 chips)
 
 | Site | Chips | Difficulty | Quality | Key Conditions |
 |------|-------|------------|---------|----------------|
@@ -493,19 +499,20 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 | McMullin North | 4,437 | L | E/G | Clear |
 | Triquet Bay | 3,726 | H/M | E/G/M | Difficult edge |
 | Triquet | 724 | L | E | Clear baseline |
+| Goose Grass Bay | 382 | L | G | — |
 
-**Validation** (6 sites, ~5,600 chips, 16%):
+**Validation** (6 sites, ~6,500 chips, 18%):
 
 | Site | Chips | Region | Difficulty | Quality | Key Conditions |
 |------|-------|--------|------------|---------|----------------|
 | Kendrick Point | 2,322 | North | M/L | E | Bleaching |
+| Louscoone | 1,541 | North | M/L | E/G | Overcast, cloud reflections |
 | Auseth | 1,082 | South | L | E | Excellent baseline |
-| Louscoone | 673 | North | M/L | E/G | Overcast |
 | Sedgwick | 634 | North | H/M | G/M | Overcast, cloud reflections |
 | Beck | 577 | South | H | M | Shadows, sparse |
 | Bennett Bay | 310 | South | H | M | Cloudy, glint |
 
-**Training** (15 sites, ~29,400 chips, 84%):
+**Training** (15 sites, ~29,400 chips, 82%):
 
 | Site | Chips | Region | Difficulty | Quality | Key Conditions |
 |------|-------|--------|------------|---------|----------------|
@@ -538,7 +545,7 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 | Bennett Bay | 310 | H | M | Cloudy, glint |
 | Arakun | 299 | L | G | — |
 
-**Validation** (7 sites, ~14,200 chips, 18%):
+**Validation** (7 sites, ~15,100 chips, 19%):
 
 | Site | Chips | Region | Difficulty | Quality | Key Conditions |
 |------|-------|--------|------------|---------|----------------|
@@ -546,11 +553,11 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 | Triquet Bay | 3,726 | Central | H/M | E/G/M | Difficult edge |
 | Kendrick Point | 2,322 | North | M/L | E | Bleaching |
 | Section Cove | 1,603 | North | M/L | E/G | Hazy lighting |
+| Louscoone | 1,541 | North | M/L | E/G | Overcast, cloud reflections |
 | Triquet | 724 | Central | L | E | Clear baseline |
-| Louscoone | 673 | North | M/L | E/G | Overcast |
 | Sedgwick | 634 | North | H/M | G/M | Overcast, cloud reflections |
 
-**Training** (16 sites, ~64,100 chips, 82%):
+**Training** (17 sites, ~64,500 chips, 81%):
 
 | Site | Chips | Region | Difficulty | Quality | Key Conditions |
 |------|-------|--------|------------|---------|----------------|
@@ -570,14 +577,15 @@ Three-fold cross-validation holding out each region as test set. Used to evaluat
 | Louscoone West | 867 | North | L | E | — |
 | Kendrick Point West | 691 | North | L | E | — |
 | Heater Harbour | 461 | North | M | G | Dark, low light |
+| Goose Grass Bay | 382 | Central | L | G | — |
 
 ### Regional CV Summary
 
 | Fold | Test Region | Test Sites | Test Chips | Val Sites | Val Chips | Train Sites | Train Chips |
 |------|-------------|------------|------------|-----------|-----------|-------------|-------------|
-| CV_NORTH | North | 15 | 22,903 | 6 | ~11,600 | 8 | ~55,900 |
-| CV_CENTRAL | Central | 8 | 55,446 | 6 | ~5,600 | 15 | ~29,400 |
-| CV_SOUTH | South | 6 | 12,099 | 7 | ~14,200 | 16 | ~64,100 |
+| CV_NORTH | North | 15 | 23,771 | 6 | ~11,600 | 9 | ~56,300 |
+| CV_CENTRAL | Central | 9 | 55,828 | 6 | ~6,500 | 15 | ~29,400 |
+| CV_SOUTH | South | 6 | 12,099 | 7 | ~15,100 | 17 | ~64,500 |
 
 **Notes:**
 - CV_CENTRAL has largest test set (Central has most chips due to multi-visit sites like Koeye)
