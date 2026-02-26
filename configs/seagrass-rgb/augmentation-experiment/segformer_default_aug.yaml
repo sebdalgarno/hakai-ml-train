@@ -152,7 +152,7 @@ trainer:
   devices: auto
   precision: bf16-mixed
   log_every_n_steps: 20
-  max_epochs: 100
+  max_epochs: 1000
   accumulate_grad_batches: 8
   gradient_clip_val: 0.5
   check_val_every_n_epoch: 5
@@ -188,8 +188,8 @@ trainer:
       init_args:
         monitor: val/iou_epoch
         mode: max
-        patience: 20
-        min_delta: 0.002
+        patience: 15
+        min_delta: 0.005
     - class_path: lightning.pytorch.callbacks.LearningRateMonitor
       init_args:
         logging_interval: step
