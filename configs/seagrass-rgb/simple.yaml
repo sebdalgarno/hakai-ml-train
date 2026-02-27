@@ -26,11 +26,11 @@ model:
 data:
   class_path: "src.data.DataModule"
   init_args:
-    train_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips/train"
-    val_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips/val"
-    test_chip_dir: "/mnt/class_data/sdalgarno/prototype/chips/test"
-    batch_size: 32
-    num_workers: 8
+    train_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_15/chips_1024/train"
+    val_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_15/chips_1024/val"
+    test_chip_dir: "/mnt/class_data/sdalgarno/prototype_frac_15/chips_1024/test"
+    batch_size: 16
+    num_workers: 16
     pin_memory: true
     persistent_workers: true
     train_transforms:
@@ -90,8 +90,9 @@ trainer:
   accelerator: auto
   devices: auto
   precision: bf16-mixed
-  log_every_n_steps: 10
-  max_epochs: 5
+  log_every_n_steps: 5
+  max_epochs: 50
+  val_check_interval: 0.5
   accumulate_grad_batches: 1
   gradient_clip_val: 0.5
   detect_anomaly: false
@@ -102,7 +103,7 @@ trainer:
       init_args:
         entity: sebdalgarno-poisson-consulting
         project: seagrass-rgb
-        name: simple
+        name: simple-verify-val-metrics
         group: debug
         log_model: false
         tags:
@@ -119,6 +120,12 @@ trainer:
         save_top_k: 1
         save_weights_only: True
         verbose: True
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        monitor: val/iou_epoch
+        mode: max
+        patience: 10
+        verbose: true
     - class_path: lightning.pytorch.callbacks.LearningRateMonitor
       init_args:
         logging_interval: step
