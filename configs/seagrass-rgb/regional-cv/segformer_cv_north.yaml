@@ -4,7 +4,7 @@ model:
   class_path: "src.models.smp.SMPMulticlassSegmentationModel"
   init_args:
     architecture: "Segformer"
-    backbone: "mit_b3"
+    backbone: "mit_b2"
     model_opts:
       encoder_weights: imagenet
       in_channels: 3
@@ -256,7 +256,7 @@ trainer:
   devices: auto
   precision: bf16-mixed
   log_every_n_steps: 20
-  max_epochs: 1000
+  max_epochs: 600
   accumulate_grad_batches: 8
   gradient_clip_val: 0.5
   check_val_every_n_epoch: 5
@@ -292,8 +292,8 @@ trainer:
       init_args:
         monitor: val/iou_epoch
         mode: max
-        patience: 15
-        min_delta: 0.005
+        patience: 10
+        min_delta: 0.001
     - class_path: lightning.pytorch.callbacks.LearningRateMonitor
       init_args:
         logging_interval: step

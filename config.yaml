@@ -9,7 +9,7 @@ trainer:
   logger:
   - class_path: lightning.pytorch.loggers.WandbLogger
     init_args:
-      name: segformer_domain_aug
+      name: segformer_cv_central
       save_dir: .
       version: null
       offline: false
@@ -26,14 +26,14 @@ trainer:
       notes: null
       tags:
       - seagrass
-      - augmentation-experiment
+      - regional-cv
       - segformer
-      - domain-aug
+      - cv-central
       config: null
       config_exclude_keys: null
       config_include_keys: null
       allow_val_change: null
-      group: augmentation-experiment
+      group: regional-cv
       job_type: null
       mode: null
       force: null
@@ -49,8 +49,8 @@ trainer:
   callbacks:
   - class_path: lightning.pytorch.callbacks.ModelCheckpoint
     init_args:
-      dirpath: /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment/domain
-      filename: segformer_domain_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+      dirpath: /mnt/class_data/sdalgarno/checkpoints/regional-cv/central
+      filename: segformer_cv_central_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
       monitor: val/iou_epoch
       verbose: true
       save_last: true
@@ -67,8 +67,8 @@ trainer:
   - class_path: lightning.pytorch.callbacks.EarlyStopping
     init_args:
       monitor: val/iou_epoch
-      min_delta: 0.002
-      patience: 25
+      min_delta: 0.005
+      patience: 15
       verbose: false
       mode: max
       strict: true
@@ -94,7 +94,7 @@ trainer:
   limit_predict_batches: null
   overfit_batches: 0.0
   val_check_interval: null
-  check_val_every_n_epoch: 2
+  check_val_every_n_epoch: 5
   num_sanity_val_steps: null
   log_every_n_steps: 20
   enable_checkpointing: null
@@ -148,9 +148,9 @@ model:
 data:
   class_path: src.data.DataModule
   init_args:
-    train_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/train
-    val_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/val
-    test_chip_dir: /mnt/class_data/sdalgarno/prototype_frac_25/chips_1024/test
+    train_chip_dir: /mnt/class_data/sdalgarno/cv_central/chips_1024/train
+    val_chip_dir: /mnt/class_data/sdalgarno/cv_central/chips_1024/val
+    test_chip_dir: /mnt/class_data/sdalgarno/cv_central/chips_1024/test
     batch_size: 6
     num_workers: 16
     pin_memory: true

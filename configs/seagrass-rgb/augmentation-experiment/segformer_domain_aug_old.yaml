@@ -141,6 +141,44 @@ data:
                 - 0.0
                 - 0.0
             translate_px: null
+          - __class_fullname__: OneOf
+            p: 0.3
+            transforms:
+              - __class_fullname__: GridDistortion
+                border_mode: 0
+                distort_limit:
+                  - -0.15
+                  - 0.15
+                interpolation: 1
+                mask_interpolation: 0
+                num_steps: 5
+                p: 1.0
+              - __class_fullname__: ElasticTransform
+                alpha: 50.0
+                border_mode: 0
+                interpolation: 1
+                mask_interpolation: 0
+                p: 1.0
+                sigma: 10.0
+          - __class_fullname__: CLAHE
+            clip_limit:
+              - 1.0
+              - 4.0
+            p: 0.2
+            tile_grid_size:
+              - 8
+              - 8
+          - __class_fullname__: HueSaturationValue
+            hue_shift_limit:
+              - -10.0
+              - 10.0
+            p: 0.5
+            sat_shift_limit:
+              - -15.0
+              - 15.0
+            val_shift_limit:
+              - -15.0
+              - 15.0
           - __class_fullname__: Normalize
             max_pixel_value: 255.0
             mean:
@@ -200,20 +238,20 @@ trainer:
       init_args:
         entity: sebdalgarno-poisson-consulting
         project: seagrass-rgb
-        name: segformer_scale_aug
+        name: segformer_domain_aug_old
         group: augmentation-experiment
         log_model: true
         tags:
           - seagrass
           - augmentation-experiment
           - segformer
-          - scale-aug
+          - domain-aug-old
   callbacks:
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
       init_args:
-        dirpath: /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment/scale
+        dirpath: /mnt/class_data/sdalgarno/checkpoints/augmentation-experiment/domain_old
         auto_insert_metric_name: False
-        filename: segformer_scale_aug_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+        filename: segformer_domain_aug_old_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
         monitor: val/iou_epoch
         mode: max
         save_last: True
