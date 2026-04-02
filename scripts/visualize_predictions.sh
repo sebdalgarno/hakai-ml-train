@@ -3,11 +3,11 @@
 set -e
 
 # CONFIG -----
-CONFIG="configs/seagrass-rgb/segformer_train50.yaml"
-CKPT="/mnt/class_data/sdalgarno/checkpoints/segformer-train50/last.ckpt"
+CONFIG="configs/seagrass-rgb/final/segformer_final.yaml"
+CKPT="/mnt/class_data/sdalgarno/checkpoints/final/last-v1.ckpt"
 
 # DIRECTORIES -----
-CHIP_DIR="/mnt/class_data/sdalgarno/prototype_frac_75/chips_1024"
+CHIP_DIR="/mnt/class_data/sdalgarno/main/chips_1024/test"
 OUTPUT_DIR="outputs/visualize-pred"
 
 # PARAMETERS -----

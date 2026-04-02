@@ -50,8 +50,8 @@ class DataModule(pl.LightningDataModule):
         self,
         train_chip_dir: str,
         val_chip_dir: str,
-        test_chip_dir: str,
         batch_size: int,
+        test_chip_dir: str | None = None,
         num_workers: int = os.cpu_count(),
         pin_memory: bool = True,
         persistent_workers: bool = False,
@@ -97,10 +97,11 @@ class DataModule(pl.LightningDataModule):
             self.val_data_dir,
             transforms=self.test_trans,
         )
-        self.ds_test = NpzSegmentationDataset(
-            self.test_data_dir,
-            transforms=self.test_trans,
-        )
+        if self.test_data_dir is not None:
+            self.ds_test = NpzSegmentationDataset(
+                self.test_data_dir,
+                transforms=self.test_trans,
+            )
 
     def teardown(self, stage: str | None = None) -> None:
         del self.ds_train

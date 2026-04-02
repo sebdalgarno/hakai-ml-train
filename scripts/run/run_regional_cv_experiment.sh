@@ -7,9 +7,9 @@ CONFIG_DIR="configs/seagrass-rgb/regional-cv"
 
 # CONFIGS -----
 CONFIGS=(
-    "$CONFIG_DIR/segformer_cv_north.yaml"
     "$CONFIG_DIR/segformer_cv_central.yaml"
     "$CONFIG_DIR/segformer_cv_south.yaml"
+    "$CONFIG_DIR/segformer_cv_north.yaml"
 )
 
 # DEV VALIDATION -----

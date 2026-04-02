@@ -9,7 +9,7 @@ trainer:
   logger:
   - class_path: lightning.pytorch.loggers.WandbLogger
     init_args:
-      name: segformer_cv_central
+      name: segformer_final
       save_dir: .
       version: null
       offline: false
@@ -26,14 +26,14 @@ trainer:
       notes: null
       tags:
       - seagrass
-      - regional-cv
+      - final
       - segformer
-      - cv-central
+      - domain-aug
       config: null
       config_exclude_keys: null
       config_include_keys: null
       allow_val_change: null
-      group: regional-cv
+      group: final
       job_type: null
       mode: null
       force: null
@@ -49,8 +49,8 @@ trainer:
   callbacks:
   - class_path: lightning.pytorch.callbacks.ModelCheckpoint
     init_args:
-      dirpath: /mnt/class_data/sdalgarno/checkpoints/regional-cv/central
-      filename: segformer_cv_central_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
+      dirpath: /mnt/class_data/sdalgarno/checkpoints/final
+      filename: segformer_final_epoch-{epoch:02d}_val-iou-{val/iou_epoch:.4f}
       monitor: val/iou_epoch
       verbose: true
       save_last: true
@@ -67,7 +67,7 @@ trainer:
   - class_path: lightning.pytorch.callbacks.EarlyStopping
     init_args:
       monitor: val/iou_epoch
-      min_delta: 0.005
+      min_delta: 0.001
       patience: 15
       verbose: false
       mode: max
@@ -116,7 +116,7 @@ trainer:
       checkpoint_io: null
   sync_batchnorm: false
   reload_dataloaders_every_n_epochs: 0
-  default_root_dir: checkpoints
+  default_root_dir: /mnt/class_data/sdalgarno/checkpoints/final
   enable_autolog_hparams: true
   model_registry: null
 model:
@@ -148,10 +148,10 @@ model:
 data:
   class_path: src.data.DataModule
   init_args:
-    train_chip_dir: /mnt/class_data/sdalgarno/cv_central/chips_1024/train
-    val_chip_dir: /mnt/class_data/sdalgarno/cv_central/chips_1024/val
-    test_chip_dir: /mnt/class_data/sdalgarno/cv_central/chips_1024/test
+    train_chip_dir: /mnt/class_data/sdalgarno/main/chips_1024/train
+    val_chip_dir: /mnt/class_data/sdalgarno/main/chips_1024/val
     batch_size: 6
+    test_chip_dir: null
     num_workers: 16
     pin_memory: true
     persistent_workers: true
