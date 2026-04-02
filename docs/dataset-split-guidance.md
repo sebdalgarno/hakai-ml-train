@@ -1,124 +1,199 @@
 # Dataset Split Guidance
 
-Recommendations for tile counts and train/val/test splits for semantic segmentation model development, informed by remote sensing and UAV imagery literature.
+Principles for splitting drone imagery datasets into train/validation/test sets for semantic segmentation models. These guidelines were applied to the seagrass model development and are applicable to future marine habitat mapping projects.
 
 ## Split Ratio
 
 **70 / 15 / 15** (train / val / test)
 
-This ratio is well-established for aerial imagery segmentation (DeepGlobe, ISPRS, SpaceNet benchmarks). For imbalanced classes like kelp/mussels, adequate validation/test samples ensure reliable metric estimation.
+This ratio is well-established for aerial imagery segmentation. Sufficient validation and test samples ensure reliable metric estimation, particularly for imbalanced classes like seagrass vs. background.
 
-## Benchmark Dataset Sizes (Literature)
+## No Site Leakage: Site-Level Splitting
 
-| Dataset | Total Images | Train | Val | Test | Resolution |
-|---------|-------------|-------|-----|------|------------|
-| Semantic Drone | 400 | 320 | 80 | - | 6000×4000 |
-| UAVid | 420 | 270 | 150 | - | 3840×2160 |
-| AeroScapes | 3,269 | ~2,600 | ~650 | - | 1280×720 |
-| VDD | 400 | ~280 | ~80 | ~40 | 4000×3000 |
-| IDD (drone) | 811 | 536 | 185 | 40 | varied |
-| Flip-n-Slide study | 12,800 tiles | - | - | - | 256×256 |
+**Critical**: Split at the site level, not the tile level.
 
-**Key insight**: UAV/drone segmentation benchmarks typically use 400-3,000 high-resolution images, which become 3,000-15,000 tiles after cropping.
+Each drone survey mosaic is tiled into hundreds or thousands of small image chips for model training. Tiles from the same site share lighting, water conditions, and sensor characteristics. If tiles from one site appear in both training and test sets, the model's apparent accuracy is inflated because it has effectively "seen" the test data.
 
-## Tile Counts by Development Phase
-
-Counts are **total tiles after sliding window extraction**.
-
-### 512×512 Tiles
-
-| Phase | Train | Val | Test | Use Case |
-|-------|-------|-----|------|----------|
-| Architecture search | 8,000-15,000 | 1,500-2,500 | 1,500-2,500 | Compare 5-10 architectures |
-| Hyperparameter tuning | 30,000-50,000 | 5,000-8,000 | 5,000-8,000 | Fine-tune top 2-3 models |
-| Final training | Full dataset | Full dataset | Full dataset | Production model |
-
-### 1024×1024 Tiles
-
-| Phase | Train | Val | Test | Use Case |
-|-------|-------|-----|------|----------|
-| Architecture search | 4,000-8,000 | 800-1,500 | 800-1,500 | Compare architectures |
-| Hyperparameter tuning | 15,000-25,000 | 2,500-4,000 | 2,500-4,000 | Fine-tune top models |
-| Final training | Full dataset | Full dataset | Full dataset | Production model |
-
-## Overlap Strategy
-
-### Training Data: 50% Stride
-
-| Tile Size | Stride | Overlap |
-|-----------|--------|---------|
-| 512×512 | 256 | 50% |
-| 1024×1024 | 512 | 50% |
-
-### Validation/Test Data: No Overlap
-
-Use stride = tile size for unbiased evaluation.
-
-### Caution: Overlapping Tiles Are Not Independent Samples
-
-Literature warns that high overlap can introduce **data redundancy** leading to:
-- Biased models exposed to many similar data points
-- Inflated apparent dataset size without true diversity
-- Potential overfitting to repeated spatial patterns
-
-From [Remote Sensing tile overlap study](https://www.mdpi.com/2072-4292/16/15/2818): "A 12.5% level of overlap ensures information near tile edges can be correctly processed during training and avoids lower data variability that would be introduced by generating tiles with a higher overlap."
-
-### Alternative: Flip-n-Slide Strategy
-
-The [Flip-n-Slide method](https://arxiv.org/html/2404.10927v1) uses varied overlaps (0%, 25%, 50%, 75%) with distinct geometric transformations per overlap level, avoiding redundancy while maintaining context. This improved precision by up to 15.8% for underrepresented classes.
-
-## Mosaic-Level Splitting
-
-**Critical**: Split at the mosaic level, not tile level.
-
-```
-66 mosaics total:
-├── Train: 46 mosaics (~70%)
-├── Val: 10 mosaics (~15%)
-└── Test: 10 mosaics (~15%)
-```
+**Rule: All tiles from a given site must go into the same bucket (train, val, or test).**
 
 ### Why This Matters
 
-- Tiles from the same mosaic share lighting, water conditions, sensor characteristics
-- Random tile-level splitting causes spatial autocorrelation leakage
-- Mosaic-level splits test true generalization to unseen locations/dates
+- Tiles from the same mosaic are spatially correlated — neighbouring tiles share overlapping features
+- Random tile-level splitting causes **spatial autocorrelation leakage**, where the model memorizes site-specific patterns rather than learning generalizable features
+- Site-level splits ensure the model is evaluated on genuinely unseen locations
 
-From [PMC systematic evaluation](https://pmc.ncbi.nlm.nih.gov/articles/PMC7020775/): CNNs exhibit translational variance where "even the smallest translation in the input can create a difference in the output" - making correlated tiles from the same scene problematic for training/test separation.
+This principle extends to multi-visit sites: if a site was surveyed multiple times (e.g., Koeye with 9 visits), all visits stay in the same bucket to prevent temporal leakage from the same location.
 
-## Condition Coverage
+## Condition Coverage Across Splits
 
-When assigning mosaics to splits, ensure each split represents:
+Each split (train, val, test) should represent the full diversity of conditions the model will encounter in production. When assigning sites to splits, ensure each bucket includes a spread of:
 
-- [ ] Geographic locations (different kelp/mussel populations)
-- [ ] Seasonal variation (spring/summer/fall)
-- [ ] Lighting conditions (sun angle, cloud cover)
-- [ ] Water conditions (turbidity, glare, calm vs choppy)
-- [ ] Target density (sparse, moderate, dense canopy/beds)
-- [ ] Edge cases (mixed species boundaries, shadows, foam)
+- **Geographic regions** — e.g., South, Central, North coast
+- **Lighting conditions** — sun angle, cloud cover, overcast, hazy
+- **Water conditions** — turbidity, glare, tannins, calm vs. choppy
+- **Target density** — sparse, moderate, dense seagrass
+- **Image resolution** — range of ground sampling distances (GSD) in each bucket
+- **Image quality** — mix of excellent, good, and moderate quality imagery
+- **Edge cases** — shadows, fog, mixed species boundaries, bleaching
 
-## Tile Size Considerations
+This ensures that validation and test metrics reflect real-world performance rather than a narrow subset of conditions. If all the "easy" sites end up in test, the metrics will overstate model quality; if all the "hard" sites end up in test, the metrics will understate it.
 
-Larger tiles improve performance. From [PMC study](https://pmc.ncbi.nlm.nih.gov/articles/PMC7020775/):
-- 128×128 tiles: Dice 0.791
-- 640×640 whole image: Dice 0.917
+### Avoiding Single-Site Dominance
 
-"Larger tile sizes yield more consistent results and mitigate undesirable and unpredictable behavior during inference."
+Large sites can dominate a split's metrics. For example, if one site contributes 70% of the validation chips, the validation score mostly reflects performance on that one site. To mitigate this:
 
-For kelp/mussel detection, 1024×1024 captures sufficient canopy/bed structure while fitting in 20GB VRAM.
+- Move very large sites to the training set where their size is an advantage
+- Ensure no single site exceeds ~40% of its split's chip count
+- Balance the number of sites across val and test so metrics reflect diverse conditions
 
-## GPU Memory Reference (20GB VRAM)
+## Prototype Datasets for Rapid Experimentation
 
-| Tile Size | Batch Size | Effective Batch (accum=8) | Approx Memory |
-|-----------|------------|---------------------------|---------------|
-| 512×512 | 8-12 | 64-96 | 12-16 GB |
-| 1024×1024 | 4-6 | 32-48 | 14-18 GB |
+A prototype (reduced) dataset is useful for faster iteration during architecture selection and hyperparameter tuning, where relative performance between experiments matters more than absolute metrics.
 
-## References
+The key principle is to **randomly sample from every site** rather than selecting a subset of sites. This preserves the full diversity of conditions and regions in the prototype, so results are more likely to transfer to the full dataset.
 
-- [Flip-n-Slide: Concise Tiling Strategy for Earth Observation](https://arxiv.org/html/2404.10927v1) - ICLR 2024 ML4RS Workshop
-- [Tile Size and Overlap Effects on Road Segmentation](https://www.mdpi.com/2072-4292/16/15/2818) - Remote Sensing 2024
-- [Systematic Evaluation of Image Tiling Effects](https://pmc.ncbi.nlm.nih.gov/articles/PMC7020775/) - PMC 2020
-- [UAVid Dataset](https://www.sciencedirect.com/science/article/abs/pii/S0924271620301295) - ISPRS 2020
-- [VDD: Varied Drone Dataset](https://arxiv.org/abs/2305.13608) - 2023
-- [Semantic Drone Dataset](https://datasetninja.com/semantic-drone)
+### How It Works
+
+A target fraction of chips is chosen (e.g., 50%), and that budget is distributed equally across all sites:
+
+1. Group chips by site within each split (train, val, test)
+2. Calculate a per-site target: `(total_chips × fraction) / num_sites`
+3. Randomly sample that many chips from each site
+4. Sites with fewer chips than the target contribute all their chips
+
+This means every site is represented in the prototype regardless of its size. Large multi-visit sites like Koeye (2,041 chips) are sampled down, while small sites like Arakun (31 chips) contribute everything. The result is a more balanced dataset where small sites have proportionally greater representation than in the full dataset.
+
+Separate fractions can be used for train vs. val/test. For example, a higher train fraction (58%) with a lower eval fraction (50%) maintains the approximate 73/14/13 split ratio from the full dataset.
+
+------------------------------------------------------------------------
+
+## Seagrass Model Splits
+
+The splits used for the seagrass segmentation model, applying the principles above. 30 sites across 3 coastal regions of British Columbia (South, Central, North), totalling 14,001 image chips at 1024x1024 px.
+
+### Split Summary
+
+| Bucket | Sites | Chips | % | South | Central | North |
+|--------|-------|-------|---|-------|---------|-------|
+| Train | 18 | 10,245 | 73% | 3 | 5 | 10 |
+| Val | 6 | 1,995 | 14% | 2 | 2 | 2 |
+| Test | 6 | 1,761 | 13% | 1 | 2 | 3 |
+| **Total** | **30** | **14,001** | **100%** | **6** | **9** | **15** |
+
+### Test (6 sites)
+
+| Site | Region | Chips | Difficulty | Quality | Key Conditions |
+|------|--------|-------|------------|---------|----------------|
+| McMullin North | Central | 496 | L | E/G | Clear |
+| Triquet Bay | Central | 468 | H/M | E/G/M | Difficult edge, other species |
+| Bag Harbour | North | 395 | L | E | Excellent baseline |
+| Section Cove | North | 196 | M/L | E/G | Hazy lighting |
+| Sedgwick | North | 132 | H/M | G/M | Overcast, cloud reflections |
+| Beck | South | 74 | H | M | Shadows, sparse eelgrass |
+| **Total** |  | **1,761** |  |  |  |
+
+### Validation (6 sites)
+
+| Site | Region | Chips | Difficulty | Quality | Key Conditions |
+|------|--------|-------|------------|---------|----------------|
+| Superstition | Central | 914 | H/L | E/G/M | Sparse, fog, algae (4 visits) |
+| Kendrick Point | North | 514 | M/L | E | Bleaching |
+| Louscoone | North | 214 | M/L | E/G | Overcast, cloud reflections |
+| Auseth | South | 134 | L | E | Excellent baseline |
+| Triquet | Central | 156 | L | E | Clear baseline |
+| Bennett Bay | South | 63 | H | M | Cloudy, glint |
+| **Total** |  | **1,995** |  |  |  |
+
+### Training (18 sites)
+
+**South (3 sites):**
+
+| Site | Chips | Difficulty | Quality | Key Conditions |
+|------|-------|------------|---------|----------------|
+| Grice Bay | 1,875 | H | G | Large sparse, coarse delineation |
+| Calmus | 244 | L | E | — |
+| Arakun | 31 | L | G | — |
+| **Subtotal** | **2,150** | | | |
+
+**Central (5 sites):**
+
+| Site | Chips | Difficulty | Quality | Key Conditions |
+|------|-------|------------|---------|----------------|
+| Pruth Bay | 2,115 | M/L | E/G/M | Shadows, cloud reflections, subtidal (8 visits) |
+| Koeye | 2,041 | H/M/L | E/G/M | Tannins, turbidity, glint (9 visits) |
+| Goose SW | 1,340 | H/M/L | E/G | Turbidity, overcast, low density (3 visits) |
+| Choked Pass | 589 | L | G | Good all round |
+| Goose Grass Bay | 68 | L | G | — |
+| **Subtotal** | **6,153** | | | |
+
+**North (10 sites):**
+
+| Site | Chips | Difficulty | Quality | Key Conditions |
+|------|-------|------------|---------|----------------|
+| Louscoone Head | 571 | M/L | E/G | Shadows |
+| Island Bay | 334 | L | G | — |
+| Ramsay | 274 | L | G | — |
+| Swan Bay | 170 | L | E | Great conditions |
+| Takelly Cove | 130 | — | G | — |
+| Balcolm Inlet | 121 | M | G | Cloudy |
+| Beljay Bay | 120 | L | E | — |
+| Louscoone West | 93 | L | E | — |
+| Kendrick Point West | 76 | L | E | — |
+| Heater Harbour | 53 | M | G | Dark, low light |
+| **Subtotal** | **1,942** | | | |
+
+| **Train Total** | **10,245** | | | |
+
+### Condition Coverage
+
+| Condition | Train | Val | Test |
+|-----------|-------|-----|------|
+| Shadows | Pruth Bay, Louscoone Head | — | Beck |
+| Sparse eelgrass | Grice Bay | Superstition | Beck |
+| Cloud reflections | Pruth Bay | Louscoone | Sedgwick |
+| Cloudy/overcast | Balcolm Inlet, Goose SW | Louscoone | Sedgwick |
+| Glint | Koeye | Bennett Bay | — |
+| Tannins | Koeye | — | — |
+| Turbidity | Goose SW, Koeye | — | — |
+| Dark/low light | Heater Harbour | — | — |
+| Bleaching | — | Kendrick Point | — |
+| Difficult edge | — | — | Triquet Bay |
+| Fog/algae | — | Superstition | — |
+| Hazy lighting | — | — | Section Cove |
+| Clear baseline | Calmus | Auseth, Triquet | McMullin North, Bag Harbour |
+
+### Resolution Coverage
+
+| Bucket | Resolution Range | Sites at Each Resolution |
+|--------|------------------|--------------------------|
+| Train | 2.0–5.6 cm | 2.0–3.0: Arakun, Calmus, Koeye, Pruth Bay, Ramsay, Swan Bay; 3.0–4.5: Goose SW, Grice Bay, Heater Harbour, Kendrick Point West, Louscoone Head, Louscoone West, Island Bay, Balcolm Inlet; 4.5–5.6: Beljay Bay, Choked Pass, Goose Grass Bay, Takelly Cove |
+| Val | 1.6–5.2 cm | 1.6–3.0: Auseth, Superstition, Triquet; 4.0–5.2: Bennett Bay, Kendrick Point, Louscoone |
+| Test | 2.3–5.0 cm | 2.3–3.0: McMullin North, Bag Harbour; 3.0–4.5: Triquet Bay, Section Cove, Sedgwick; 4.5–5.0: Beck |
+
+All buckets cover a broad range of ground sampling distances (GSD), ensuring the model sees varied spatial scales during training and is evaluated on representative resolutions.
+
+------------------------------------------------------------------------
+
+## Key Decisions
+
+1. **Koeye (9 visits) in training**: Maximizes diversity for learning tannins, turbidity, and glint conditions. Largest multi-visit site provides temporal variation.
+
+2. **Pruth Bay and Grice Bay in training**: These large sites were moved from val/test to training because they dominated their respective split metrics (70% and 53% of chips). Moving them to training prevents single-site bias while providing diverse training conditions (shadows, cloud reflections, sparse eelgrass).
+
+3. **High-difficulty site distribution**:
+    - Train: Grice Bay, Goose SW, Koeye, Pruth Bay
+    - Val: Bennett Bay, Superstition
+    - Test: Triquet Bay, Sedgwick, Beck
+
+4. **Baseline sites in each bucket**: Clear, excellent-quality sites for metric calibration:
+    - Train: Calmus
+    - Val: Auseth, Triquet
+    - Test: McMullin North, Bag Harbour
+
+5. **Regional balance maintained**: Each bucket has representation from all 3 regions, roughly proportional to the overall distribution.
+
+6. **Challenging conditions in test**: Difficult edges (Triquet Bay), hazy lighting (Section Cove), and shadows/sparse (Beck) appear in test to evaluate generalization to edge cases.
+
+7. **Balanced chip distribution**: No single site exceeds 40% of its split, ensuring metrics reflect model performance across diverse conditions rather than one dominant site.
+
+8. **Balanced difficulty across val/test**: Both val and test contain a mix of easy and challenging sites, ensuring validation metrics are predictive of test performance.
